@@ -2,6 +2,15 @@ import { InboundOrderDetailResponse } from '../types';
 
 const API_BASE_URL = 'http://localhost:8036/jxc/v1';
 
+// 定义搜索参数接口
+interface InboundOrderSearchParams {
+  end_date?: string;
+  page?: number;
+  page_size?: number;
+  start_date?: string;
+  supplier?: string;
+}
+
 class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message);
@@ -112,12 +121,52 @@ class ApiService {
     });
   }
 
-  // Inbound Orders
-  async getInboundOrders(params?: { limit?: number; offset?: number }) {
-    const query = params ? `?${new URLSearchParams(params as any).toString()}` : '';
-    const response = await this.request<{ limit: number; offset: number; orders: any[]; total: number }>(`/inbound/orders${query}`);
-    // 返回 orders 数组，而不是整个 response 对象
+  // Inbound Orders - 修改为新的搜索接口
+  async getInboundOrders(params?: InboundOrderSearchParams) {
+    // 设置默认参数
+    const searchParams: InboundOrderSearchParams = {
+      page: 1,
+      page_size: 100,
+      start_date: '',
+      end_date: '',
+      supplier: '',
+      ...params
+    };
+
+    const response = await this.request<{ 
+      page: number; 
+      page_size: number; 
+      orders: any[]; 
+      total: number 
+    }>('/inbound/orders/search', {
+      method: 'POST',
+      body: JSON.stringify(searchParams),
+    });
+    
+    // 返回 orders 数组，保持原有接口兼容性
     return response.orders;
+  }
+
+  // 新增：专门的搜索方法，返回完整响应信息
+  async searchInboundOrders(params: InboundOrderSearchParams) {
+    const searchParams: InboundOrderSearchParams = {
+      page: 1,
+      page_size: 100,
+      start_date: '',
+      end_date: '',
+      supplier: '',
+      ...params
+    };
+
+    return this.request<{ 
+      page: number; 
+      page_size: number; 
+      orders: any[]; 
+      total: number 
+    }>('/inbound/orders/search', {
+      method: 'POST',
+      body: JSON.stringify(searchParams),
+    });
   }
 
   async createInboundOrder(order: any) {
@@ -149,3 +198,4 @@ class ApiService {
 
 export const apiService = new ApiService();
 export { ApiError };
+export type { InboundOrderSearchParams };

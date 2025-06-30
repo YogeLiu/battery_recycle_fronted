@@ -1,16 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Categories from './pages/Categories';
-import Inbound from './pages/Inbound';
-import InboundTest from './pages/InboundTest';
 import InboundFixed from './pages/InboundFixed';
-import InboundMinimal from './pages/InboundMinimal';
 import Inventory from './pages/Inventory';
 import Users from './pages/Users';
 
@@ -48,7 +44,7 @@ const AppRoutes = () => {
         <Route path="categories" element={<Categories />} />
         <Route path="inbound" element={
           <ErrorBoundary>
-            <Inbound />
+            <InboundFixed />
           </ErrorBoundary>
         } />
         <Route path="inventory" element={<Inventory />} />

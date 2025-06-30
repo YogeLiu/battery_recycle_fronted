@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Eye, TrendingUp, AlertTriangle } from 'lucide-react';
-import { apiService } from '../services/api';
-import { InboundOrder, BatteryCategory, CreateInboundOrderRequest } from '../types';
+import { Plus, Eye, TrendingUp, AlertTriangle, Search, Trash2 } from 'lucide-react';
+import { apiService, InboundOrderSearchParams } from '../services/api';
+import { InboundOrder, BatteryCategory, CreateInboundOrderRequest, InboundOrderDetailResponse } from '../types';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import { Table, TableHeader, TableBody, TableRow, TableCell, TableHeaderCell } from '../components/ui/Table';
@@ -11,41 +11,75 @@ const InboundFixed = () => {
     const [categories, setCategories] = useState<BatteryCategory[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [apiError, setApiError] = useState<boolean>(false);  // API连接错误状态
     const [showModal, setShowModal] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    
+    // 详情相关状态
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [orderDetail, setOrderDetail] = useState<InboundOrderDetailResponse | null>(null);
+    const [loadingDetail, setLoadingDetail] = useState(false);
+    
+    // 删除相关状态
+    const [deletingOrderId, setDeletingOrderId] = useState<number | null>(null);
+    
+    // 搜索相关状态
+    const [searchParams, setSearchParams] = useState<InboundOrderSearchParams>({
+        page: 1,
+        page_size: 100,
+        start_date: '',
+        end_date: '',
+        supplier: ''
+    });
+    const [showSearchForm, setShowSearchForm] = useState(false);
+    
     const [formData, setFormData] = useState<CreateInboundOrderRequest>({
         supplier_name: '',
         items: [{ category_id: 0, gross_weight: 0, tare_weight: 0, unit_price: 0 }],
         notes: ''
     });
 
-    const loadData = async () => {
+    const loadData = async (searchOptions?: InboundOrderSearchParams) => {
         try {
-            console.log('InboundFixed: 开始加载数据...');
             setError(null);
+            setApiError(false);
             setLoading(true);
 
             const [ordersResult, categoriesResult] = await Promise.allSettled([
-                apiService.getInboundOrders(),
+                apiService.getInboundOrders(searchOptions || searchParams),
                 apiService.getCategories()
             ]);
 
+            // 处理订单数据
             if (ordersResult.status === 'fulfilled') {
                 setOrders(ordersResult.value || []);
             } else {
                 setOrders([]);
+                // 检查是否是网络错误
+                if (ordersResult.reason?.message?.includes('Network error') ||
+                    ordersResult.reason?.status === 502) {
+                    setApiError(true);
+                }
             }
 
+            // 处理分类数据
             if (categoriesResult.status === 'fulfilled') {
                 setCategories(categoriesResult.value || []);
             } else {
                 setCategories([]);
-                setError('无法加载电池分类数据');
+                // 检查是否是网络错误
+                if (categoriesResult.reason?.message?.includes('Network error') ||
+                    categoriesResult.reason?.status === 502) {
+                    setApiError(true);
+                    setError('无法连接到后端服务，请检查后端服务是否正常运行');
+                } else {
+                    setError('无法加载电池分类数据，请检查网络连接');
+                }
             }
 
-        } catch (error) {
-            console.error('InboundFixed: 数据加载异常', error);
-            setError('数据加载失败');
+        } catch {
+            setError('数据加载失败，请刷新页面重试');
+            setApiError(true);
             setOrders([]);
             setCategories([]);
         } finally {
@@ -56,6 +90,73 @@ const InboundFixed = () => {
     useEffect(() => {
         loadData();
     }, []);
+
+    // 搜索处理函数
+    const handleSearch = async (e: React.FormEvent) => {
+        e.preventDefault();
+        await loadData(searchParams);
+        setShowSearchForm(false);
+    };
+
+    // 重置搜索
+    const handleResetSearch = async () => {
+        const resetParams = {
+            page: 1,
+            page_size: 100,
+            start_date: '',
+            end_date: '',
+            supplier: ''
+        };
+        setSearchParams(resetParams);
+        await loadData(resetParams);
+        setShowSearchForm(false);
+    };
+
+    // 删除订单功能
+    const handleDeleteOrder = async (orderId: number, orderNo: string) => {
+        if (!confirm(`确定要删除入库单 ${orderNo} 吗？\n此操作无法撤销，请谨慎操作！`)) {
+            return;
+        }
+
+        try {
+            setDeletingOrderId(orderId);
+            await apiService.deleteInboundOrder(orderId);
+            alert('入库单删除成功');
+            await loadData(); // 重新加载数据
+        } catch (error: any) {
+            console.error('Failed to delete order:', error);
+            alert(error.message || '删除失败，请重试');
+        } finally {
+            setDeletingOrderId(null);
+        }
+    };
+
+
+
+    // 打开创建模态框
+    const openCreateModal = () => {
+        if (categories.length === 0) {
+            alert('请先创建电池分类后再创建入库单');
+            return;
+        }
+        setShowModal(true);
+    };
+
+    // 查看订单详情功能
+    const handleViewOrder = async (orderId: number) => {
+        try {
+            setLoadingDetail(true);
+            setShowDetailModal(true);
+            const detail = await apiService.getInboundOrder(orderId);
+            setOrderDetail(detail);
+        } catch (error: any) {
+            console.error('Failed to load order detail:', error);
+            alert(error.message || '加载订单详情失败，请重试');
+            setShowDetailModal(false);
+        } finally {
+            setLoadingDetail(false);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -99,7 +200,6 @@ const InboundFixed = () => {
             await loadData();
             alert('入库单创建成功！');
         } catch (error: any) {
-            console.error('InboundFixed: 创建入库单失败', error);
             alert(error.message || '创建入库单失败，请重试');
         } finally {
             setSubmitting(false);
@@ -124,7 +224,7 @@ const InboundFixed = () => {
         });
     };
 
-    const updateItem = (index: number, field: string, value: any) => {
+    const updateItem = (index: number, field: string, value: number) => {
         const updatedItems = [...formData.items];
         updatedItems[index] = { ...updatedItems[index], [field]: value };
         setFormData({ ...formData, items: updatedItems });
@@ -147,23 +247,96 @@ const InboundFixed = () => {
         );
     }
 
+    // API连接错误状态
+    if (apiError && !loading) {
+        return (
+            <div className="p-6 bg-gray-50 min-h-screen">
+                <div className="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900">入库管理</h1>
+                        <p className="text-gray-600 mt-1">管理电池入库订单</p>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                    <div className="text-center">
+                        <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">连接后端服务失败</h3>
+                        <p className="text-gray-600 mb-4">
+                            无法连接到后端API服务 (http://localhost:8036)
+                        </p>
+                        <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+                            <h4 className="font-medium text-gray-900 mb-2">解决方法：</h4>
+                            <ul className="text-sm text-gray-600 space-y-1">
+                                <li>1. 检查后端服务是否正在运行</li>
+                                <li>2. 确认后端服务端口是否为 8036</li>
+                                <li>3. 检查防火墙设置</li>
+                                <li>4. 查看后端服务日志</li>
+                            </ul>
+                        </div>
+                        <div className="space-x-4">
+                            <Button onClick={() => loadData()} variant="primary">
+                                重新连接
+                            </Button>
+                            <Button
+                                onClick={() => window.open('http://localhost:8036/jxc/v1/categories', '_blank')}
+                                variant="secondary"
+                            >
+                                测试API连接
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="p-6 bg-gray-50 min-h-screen">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">入库管理 (修复版)</h1>
+                    <h1 className="text-3xl font-bold text-gray-900">入库管理</h1>
                     <p className="text-gray-600 mt-1">管理电池入库订单</p>
                 </div>
-                <Button onClick={() => setShowModal(true)} disabled={categories.length === 0}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    创建入库单
-                </Button>
+                <div className="flex space-x-3">
+                    <Button 
+                        onClick={() => setShowSearchForm(true)} 
+                        variant="secondary"
+                    >
+                        <Search className="h-4 w-4 mr-2" />
+                        筛选订单
+                    </Button>
+                    <Button 
+                        onClick={openCreateModal} 
+                        disabled={categories.length === 0}
+                    >
+                        <Plus className="h-4 w-4 mr-2" />
+                        创建入库单
+                    </Button>
+                </div>
             </div>
 
+            {/* 错误提示 */}
             {error && (
                 <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-center">
                     <AlertTriangle className="h-5 w-5 text-red-600 mr-2" />
                     <span className="text-red-700">{error}</span>
+                    <button
+                        onClick={() => loadData()}
+                        className="ml-auto text-red-600 hover:text-red-800 text-sm font-medium"
+                    >
+                        重试
+                    </button>
+                </div>
+            )}
+
+            {/* 分类为空提示 */}
+            {categories.length === 0 && !loading && (
+                <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center">
+                    <AlertTriangle className="h-5 w-5 text-amber-600 mr-2" />
+                    <span className="text-amber-700">
+                        系统中还没有电池分类，请先到"电池分类"页面创建分类后再创建入库单
+                    </span>
                 </div>
             )}
 
@@ -173,11 +346,14 @@ const InboundFixed = () => {
                         <TrendingUp className="h-16 w-16 text-gray-300 mx-auto mb-6" />
                         <h3 className="text-lg font-medium text-gray-900 mb-2">暂无入库订单</h3>
                         <p className="text-gray-500 mb-6">创建您的第一个入库单来开始管理库存</p>
-                        <div className="text-sm text-blue-600 mb-4">
-                            <div>调试信息:</div>
-                            <div>订单数量: {orders.length}</div>
-                            <div>分类数量: {categories.length}</div>
-                        </div>
+                        <Button
+                            onClick={openCreateModal}
+                            disabled={categories.length === 0}
+                            size="lg"
+                        >
+                            <Plus className="h-5 w-5 mr-2" />
+                            创建入库单
+                        </Button>
                     </div>
                 ) : (
                     <Table>
@@ -194,15 +370,54 @@ const InboundFixed = () => {
                         <TableBody>
                             {orders.map((order) => (
                                 <TableRow key={order.id}>
-                                    <TableCell>{order.order_no}</TableCell>
-                                    <TableCell>{order.supplier_name}</TableCell>
-                                    <TableCell>¥{order.total_amount.toFixed(2)}</TableCell>
-                                    <TableCell>{order.status}</TableCell>
-                                    <TableCell>{new Date(order.created_at).toLocaleDateString('zh-CN')}</TableCell>
                                     <TableCell>
-                                        <button className="text-blue-600 hover:text-blue-800">
-                                            <Eye className="h-4 w-4" />
-                                        </button>
+                                        <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
+                                            {order.order_no}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <span className="font-medium">{order.supplier_name}</span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <span className="font-medium text-green-600">
+                                            ¥{order.total_amount.toFixed(2)}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <span className={`px-3 py-1 text-xs font-medium rounded-full ${order.status === 'completed'
+                                            ? 'bg-green-100 text-green-800'
+                                            : 'bg-yellow-100 text-yellow-800'
+                                        }`}>
+                                            {order.status === 'completed' ? '已完成' : '处理中'}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <span className="text-gray-600">
+                                            {new Date(order.created_at).toLocaleDateString('zh-CN')}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center space-x-2">
+                                            <button
+                                                onClick={() => handleViewOrder(order.id)}
+                                                className="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50 transition-colors duration-200"
+                                                title="查看详情"
+                                            >
+                                                <Eye className="h-4 w-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteOrder(order.id, order.order_no)}
+                                                disabled={deletingOrderId === order.id}
+                                                className="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                title="删除订单"
+                                            >
+                                                {deletingOrderId === order.id ? (
+                                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                                                ) : (
+                                                    <Trash2 className="h-4 w-4" />
+                                                )}
+                                            </button>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -211,6 +426,75 @@ const InboundFixed = () => {
                 )}
             </div>
 
+            {/* 搜索模态框 */}
+            <Modal
+                isOpen={showSearchForm}
+                onClose={() => setShowSearchForm(false)}
+                title="筛选入库订单"
+                size="lg"
+            >
+                <form onSubmit={handleSearch} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                开始日期
+                            </label>
+                            <input
+                                type="date"
+                                value={searchParams.start_date}
+                                onChange={(e) => setSearchParams({ ...searchParams, start_date: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                结束日期
+                            </label>
+                            <input
+                                type="date"
+                                value={searchParams.end_date}
+                                onChange={(e) => setSearchParams({ ...searchParams, end_date: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            供应商（模糊搜索）
+                        </label>
+                        <input
+                            type="text"
+                            value={searchParams.supplier}
+                            onChange={(e) => setSearchParams({ ...searchParams, supplier: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="请输入供应商名称进行模糊搜索"
+                        />
+                    </div>
+
+                    <div className="flex justify-end space-x-3 pt-4">
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={handleResetSearch}
+                        >
+                            重置
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={() => setShowSearchForm(false)}
+                        >
+                            取消
+                        </Button>
+                        <Button type="submit">
+                            搜索
+                        </Button>
+                    </div>
+                </form>
+            </Modal>
+
+            {/* 创建入库单模态框 */}
             <Modal
                 isOpen={showModal}
                 onClose={() => !submitting && setShowModal(false)}
@@ -394,6 +678,150 @@ const InboundFixed = () => {
                         </Button>
                     </div>
                 </form>
+            </Modal>
+
+            {/* 订单详情模态框 */}
+            <Modal
+                isOpen={showDetailModal}
+                onClose={() => setShowDetailModal(false)}
+                title="入库单详情"
+                size="xl"
+            >
+                {loadingDetail ? (
+                    <div className="flex justify-center items-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        <span className="ml-2 text-gray-600">加载中...</span>
+                    </div>
+                ) : orderDetail ? (
+                    <div className="space-y-6">
+                        {/* 订单基本信息 */}
+                        <div className="bg-gray-50 rounded-lg p-4">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">订单信息</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">订单号</label>
+                                    <p className="mt-1 font-mono text-sm bg-white px-3 py-2 rounded border">
+                                        {orderDetail.order.order_no}
+                                    </p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">供应商</label>
+                                    <p className="mt-1 text-sm bg-white px-3 py-2 rounded border">
+                                        {orderDetail.order.supplier_name}
+                                    </p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">总金额</label>
+                                    <p className="mt-1 text-sm font-semibold text-green-600 bg-white px-3 py-2 rounded border">
+                                        ¥{orderDetail.order.total_amount.toFixed(2)}
+                                    </p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">状态</label>
+                                    <p className="mt-1">
+                                        <span className={`px-3 py-1 text-xs font-medium rounded-full ${orderDetail.order.status === 'completed'
+                                            ? 'bg-green-100 text-green-800'
+                                            : 'bg-yellow-100 text-yellow-800'
+                                        }`}>
+                                            {orderDetail.order.status === 'completed' ? '已完成' : '处理中'}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">创建时间</label>
+                                    <p className="mt-1 text-sm bg-white px-3 py-2 rounded border">
+                                        {new Date(orderDetail.order.created_at).toLocaleString('zh-CN')}
+                                    </p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">更新时间</label>
+                                    <p className="mt-1 text-sm bg-white px-3 py-2 rounded border">
+                                        {new Date(orderDetail.order.updated_at).toLocaleString('zh-CN')}
+                                    </p>
+                                </div>
+                            </div>
+                            {orderDetail.order.notes && (
+                                <div className="mt-4">
+                                    <label className="block text-sm font-medium text-gray-700">备注</label>
+                                    <p className="mt-1 text-sm bg-white px-3 py-2 rounded border">
+                                        {orderDetail.order.notes}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* 入库明细 */}
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">入库明细</h3>
+                            <div className="overflow-x-auto">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHeaderCell>电池分类</TableHeaderCell>
+                                            <TableHeaderCell>毛重 (KG)</TableHeaderCell>
+                                            <TableHeaderCell>皮重 (KG)</TableHeaderCell>
+                                            <TableHeaderCell>净重 (KG)</TableHeaderCell>
+                                            <TableHeaderCell>单价 (元/KG)</TableHeaderCell>
+                                            <TableHeaderCell>小计 (元)</TableHeaderCell>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {orderDetail.detail.map((item, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell>
+                                                    <span className="font-medium">{item.category_name}</span>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className="font-mono">{item.gross_weight.toFixed(2)}</span>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className="font-mono">{item.tare_weight.toFixed(2)}</span>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className="font-mono font-semibold text-blue-600">
+                                                        {item.net_weight.toFixed(2)}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className="font-mono">¥{item.unit_price.toFixed(2)}</span>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className="font-mono font-semibold text-green-600">
+                                                        ¥{item.sub_total.toFixed(2)}
+                                                    </span>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+
+                            {/* 总计 */}
+                            <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-lg font-medium text-gray-700">订单总计:</span>
+                                    <span className="text-xl font-bold text-blue-600">
+                                        ¥{orderDetail.order.total_amount.toFixed(2)}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end pt-6 border-t border-gray-200">
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={() => setShowDetailModal(false)}
+                            >
+                                关闭
+                            </Button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="text-center py-8">
+                        <p className="text-gray-500">无法加载订单详情</p>
+                    </div>
+                )}
             </Modal>
         </div>
     );
