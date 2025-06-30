@@ -54,7 +54,7 @@ npm run preview:test
 ### 当前配置
 
 - **本地环境**: `http://localhost:8036/jxc/v1`
-- **测试环境**: `http://182.92.150.161:8036/jxc/v1`
+- **测试环境**: `http://182.92.150.161:8080/battery/api`
 - **生产环境**: `https://api.yourdomain.com/jxc/v1` (待配置)
 
 ### 修改API地址

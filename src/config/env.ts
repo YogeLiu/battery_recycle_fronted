@@ -38,7 +38,7 @@ function getApiBaseUrl(): string {
     case 'local':
       return 'http://localhost:8036/jxc/v1';
     case 'test':
-      return 'http://182.92.150.161:8036/jxc/v1';
+      return 'http://182.92.150.161:8080/battery/api';
     case 'production':
       return 'https://api.yourdomain.com/jxc/v1';
     default:
