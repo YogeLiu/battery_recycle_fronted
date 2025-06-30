@@ -226,247 +226,249 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
           </div>
         </div>
 
-        <style jsx>{`
-          .print-container {
-            font-family: Arial, 'Microsoft YaHei', sans-serif;
-            font-size: 12px;
-            line-height: 1.4;
-            color: #000;
-          }
-
-          .print-page {
-            width: 210mm;
-            min-height: 297mm;
-            padding: 15mm;
-            margin: 0 auto;
-            background: white;
-            box-sizing: border-box;
-          }
-
-          .page-break {
-            page-break-before: always;
-          }
-
-          .print-header {
-            text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #000;
-            padding-bottom: 15px;
-          }
-
-          .print-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin: 0 0 15px 0;
-            letter-spacing: 2px;
-          }
-
-          .order-info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            text-align: left;
-          }
-
-          .info-item {
-            display: flex;
-            align-items: center;
-          }
-
-          .label {
-            font-weight: bold;
-            margin-right: 8px;
-            min-width: 80px;
-          }
-
-          .value {
-            flex: 1;
-          }
-
-          .order-no {
-            font-family: monospace;
-            font-weight: bold;
-            font-size: 14px;
-          }
-
-          .total-highlight {
-            font-weight: bold;
-            font-size: 16px;
-            color: #e74c3c;
-          }
-
-          .print-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 11px;
-          }
-
-          .print-table th,
-          .print-table td {
-            border: 1px solid #000;
-            padding: 8px 4px;
-            text-align: center;
-            vertical-align: middle;
-          }
-
-          .print-table th {
-            background-color: #f8f8f8;
-            font-weight: bold;
-            font-size: 12px;
-          }
-
-          .net-weight {
-            font-weight: bold;
-            color: #2980b9;
-          }
-
-          .sub-total {
-            font-weight: bold;
-          }
-
-          .total-row {
-            font-weight: bold;
-            background-color: #f0f0f0;
-          }
-
-          .total-label {
-            text-align: right;
-            font-size: 14px;
-          }
-
-          .total-amount {
-            font-size: 16px;
-            color: #e74c3c;
-          }
-
-          .notes-section {
-            margin: 15px 0;
-            border: 1px solid #000;
-            padding: 10px;
-            min-height: 40px;
-          }
-
-          .notes-label {
-            font-weight: bold;
-            margin-bottom: 5px;
-          }
-
-          .notes-content {
-            line-height: 1.6;
-          }
-
-          .signature-section {
-            margin-top: 30px;
-          }
-
-          .signature-row {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-          }
-
-          .signature-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-          }
-
-          .signature-line {
-            display: inline-block;
-            width: 100px;
-            border-bottom: 1px solid #000;
-            height: 20px;
-          }
-
-          .print-time {
-            text-align: right;
-            font-size: 10px;
-            color: #666;
-          }
-
-          .summary-section {
-            margin: 30px 0;
-            padding: 20px;
-            border: 2px solid #000;
-            background-color: #f9f9f9;
-          }
-
-          .summary-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-            text-align: center;
-          }
-
-          .summary-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-          }
-
-          .summary-label {
-            font-size: 13px;
-            margin-bottom: 8px;
-          }
-
-          .summary-value {
-            font-size: 18px;
-            font-weight: bold;
-          }
-
-          .detail-list {
-            margin: 20px 0;
-            border: 1px solid #000;
-            padding: 15px;
-          }
-
-          .detail-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px dashed #ccc;
-          }
-
-          .detail-item:last-child {
-            border-bottom: none;
-          }
-
-          .item-name {
-            flex: 1;
-            font-weight: bold;
-          }
-
-          .item-weight {
-            min-width: 80px;
-            text-align: center;
-            color: #2980b9;
-          }
-
-          .item-amount {
-            min-width: 80px;
-            text-align: right;
-            font-weight: bold;
-          }
-
-          @media print {
+        <style dangerouslySetInnerHTML={{
+          __html: `
             .print-container {
-              font-size: 11px;
+              font-family: Arial, 'Microsoft YaHei', sans-serif;
+              font-size: 12px;
+              line-height: 1.4;
+              color: #000;
             }
-            
+
             .print-page {
-              width: auto;
-              min-height: auto;
-              padding: 10mm;
-              margin: 0;
-              page-break-inside: avoid;
+              width: 210mm;
+              min-height: 297mm;
+              padding: 15mm;
+              margin: 0 auto;
+              background: white;
+              box-sizing: border-box;
             }
-            
+
             .page-break {
               page-break-before: always;
             }
-          }
-        `}</style>
+
+            .print-header {
+              text-align: center;
+              margin-bottom: 20px;
+              border-bottom: 2px solid #000;
+              padding-bottom: 15px;
+            }
+
+            .print-title {
+              font-size: 20px;
+              font-weight: bold;
+              margin: 0 0 15px 0;
+              letter-spacing: 2px;
+            }
+
+            .order-info-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 10px;
+              text-align: left;
+            }
+
+            .info-item {
+              display: flex;
+              align-items: center;
+            }
+
+            .label {
+              font-weight: bold;
+              margin-right: 8px;
+              min-width: 80px;
+            }
+
+            .value {
+              flex: 1;
+            }
+
+            .order-no {
+              font-family: monospace;
+              font-weight: bold;
+              font-size: 14px;
+            }
+
+            .total-highlight {
+              font-weight: bold;
+              font-size: 16px;
+              color: #e74c3c;
+            }
+
+            .print-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin: 20px 0;
+              font-size: 11px;
+            }
+
+            .print-table th,
+            .print-table td {
+              border: 1px solid #000;
+              padding: 8px 4px;
+              text-align: center;
+              vertical-align: middle;
+            }
+
+            .print-table th {
+              background-color: #f8f8f8;
+              font-weight: bold;
+              font-size: 12px;
+            }
+
+            .net-weight {
+              font-weight: bold;
+              color: #2980b9;
+            }
+
+            .sub-total {
+              font-weight: bold;
+            }
+
+            .total-row {
+              font-weight: bold;
+              background-color: #f0f0f0;
+            }
+
+            .total-label {
+              text-align: right;
+              font-size: 14px;
+            }
+
+            .total-amount {
+              font-size: 16px;
+              color: #e74c3c;
+            }
+
+            .notes-section {
+              margin: 15px 0;
+              border: 1px solid #000;
+              padding: 10px;
+              min-height: 40px;
+            }
+
+            .notes-label {
+              font-weight: bold;
+              margin-bottom: 5px;
+            }
+
+            .notes-content {
+              line-height: 1.6;
+            }
+
+            .signature-section {
+              margin-top: 30px;
+            }
+
+            .signature-row {
+              display: flex;
+              justify-content: space-around;
+              margin-bottom: 20px;
+            }
+
+            .signature-item {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+            }
+
+            .signature-line {
+              display: inline-block;
+              width: 100px;
+              border-bottom: 1px solid #000;
+              height: 20px;
+            }
+
+            .print-time {
+              text-align: right;
+              font-size: 10px;
+              color: #666;
+            }
+
+            .summary-section {
+              margin: 30px 0;
+              padding: 20px;
+              border: 2px solid #000;
+              background-color: #f9f9f9;
+            }
+
+            .summary-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr 1fr;
+              gap: 20px;
+              text-align: center;
+            }
+
+            .summary-item {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+            }
+
+            .summary-label {
+              font-size: 13px;
+              margin-bottom: 8px;
+            }
+
+            .summary-value {
+              font-size: 18px;
+              font-weight: bold;
+            }
+
+            .detail-list {
+              margin: 20px 0;
+              border: 1px solid #000;
+              padding: 15px;
+            }
+
+            .detail-item {
+              display: flex;
+              justify-content: space-between;
+              padding: 8px 0;
+              border-bottom: 1px dashed #ccc;
+            }
+
+            .detail-item:last-child {
+              border-bottom: none;
+            }
+
+            .item-name {
+              flex: 1;
+              font-weight: bold;
+            }
+
+            .item-weight {
+              min-width: 80px;
+              text-align: center;
+              color: #2980b9;
+            }
+
+            .item-amount {
+              min-width: 80px;
+              text-align: right;
+              font-weight: bold;
+            }
+
+            @media print {
+              .print-container {
+                font-size: 11px;
+              }
+              
+              .print-page {
+                width: auto;
+                min-height: auto;
+                padding: 10mm;
+                margin: 0;
+                page-break-inside: avoid;
+              }
+              
+              .page-break {
+                page-break-before: always;
+              }
+            }
+          `
+        }} />
       </div>
     );
   }
