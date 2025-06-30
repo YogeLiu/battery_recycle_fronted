@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Eye, TrendingUp, AlertTriangle, Search, Trash2 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, Eye, TrendingUp, AlertTriangle, Search, Trash2, Printer } from 'lucide-react';
+import { useReactToPrint } from 'react-to-print';
 import { apiService, InboundOrderSearchParams } from '../services/api';
 import { InboundOrder, BatteryCategory, CreateInboundOrderRequest, InboundOrderDetailResponse } from '../types';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import { Table, TableHeader, TableBody, TableRow, TableCell, TableHeaderCell } from '../components/ui/Table';
+import PrintableInboundOrder from '../components/ui/PrintableInboundOrder';
 
 const InboundFixed = () => {
     const [orders, setOrders] = useState<InboundOrder[]>([]);
@@ -22,6 +24,9 @@ const InboundFixed = () => {
     
     // 删除相关状态
     const [deletingOrderId, setDeletingOrderId] = useState<number | null>(null);
+    
+    // 打印相关
+    const printRef = useRef<HTMLDivElement>(null);
     
     // 搜索相关状态
     const [searchParams, setSearchParams] = useState<InboundOrderSearchParams>({
@@ -111,6 +116,27 @@ const InboundFixed = () => {
         await loadData(resetParams);
         setShowSearchForm(false);
     };
+
+    // 打印功能
+    const handlePrint = useReactToPrint({
+        content: () => printRef.current,
+        documentTitle: `入库单-${orderDetail?.order.order_no || ''}`,
+        onAfterPrint: () => {
+            console.log('打印完成');
+        },
+        pageStyle: `
+            @page {
+                size: A4;
+                margin: 0;
+            }
+            @media print {
+                body {
+                    -webkit-print-color-adjust: exact !important;
+                    color-adjust: exact !important;
+                }
+            }
+        `
+    });
 
     // 删除订单功能
     const handleDeleteOrder = async (orderId: number, orderNo: string) => {
@@ -807,7 +833,15 @@ const InboundFixed = () => {
                             </div>
                         </div>
 
-                        <div className="flex justify-end pt-6 border-t border-gray-200">
+                        <div className="flex justify-between pt-6 border-t border-gray-200">
+                            <Button
+                                onClick={handlePrint}
+                                variant="primary"
+                                disabled={!orderDetail}
+                            >
+                                <Printer className="h-4 w-4 mr-2" />
+                                打印三联单
+                            </Button>
                             <Button
                                 type="button"
                                 variant="secondary"
@@ -823,6 +857,16 @@ const InboundFixed = () => {
                     </div>
                 )}
             </Modal>
+
+            {/* 隐藏的打印组件 */}
+            {orderDetail && (
+                <div style={{ display: 'none' }}>
+                    <PrintableInboundOrder 
+                        ref={printRef}
+                        orderDetail={orderDetail}
+                    />
+                </div>
+            )}
         </div>
     );
 };
