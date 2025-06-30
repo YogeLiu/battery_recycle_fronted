@@ -1,6 +1,7 @@
 import { InboundOrderDetailResponse } from '../types';
+import { envConfig } from '../config/env';
 
-const API_BASE_URL = 'http://localhost:8036/jxc/v1';
+const API_BASE_URL = envConfig.apiBaseUrl;
 
 // 定义搜索参数接口
 interface InboundOrderSearchParams {

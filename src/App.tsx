@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
+import EnvIndicator from './components/EnvIndicator';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Categories from './pages/Categories';
@@ -60,6 +61,7 @@ function App() {
     <AuthProvider>
       <Router>
         <AppRoutes />
+        <EnvIndicator />
       </Router>
     </AuthProvider>
   );
