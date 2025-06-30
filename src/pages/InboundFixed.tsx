@@ -121,23 +121,13 @@ const InboundFixed = () => {
     const handlePrint = useReactToPrint({
         contentRef: printRef,
         documentTitle: `入库单-${orderDetail?.order.order_no || ''}`,
-        onBeforeGetContent: async () => {
-            console.log('准备获取打印内容');
-            console.log('订单详情:', orderDetail);
-            console.log('打印内容引用:', printRef.current);
-            return Promise.resolve();
-        },
-        onBeforePrint: async () => {
-            console.log('准备打印');
-            return Promise.resolve();
-        },
         onAfterPrint: () => {
             console.log('打印完成');
         },
         pageStyle: `
             @page {
-                size: A4;
-                margin: 10mm;
+                size: 148mm 210mm;
+                margin: 8mm;
             }
             @media print {
                 body {
