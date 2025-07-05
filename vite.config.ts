@@ -14,6 +14,13 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
       assetsDir: 'assets',
+      rollupOptions: {
+        output: {
+          entryFileNames: `assets/[name].[hash].${Date.now()}.js`,
+          chunkFileNames: `assets/[name].[hash].${Date.now()}.js`,
+          assetFileNames: `assets/[name].[hash].${Date.now()}.[ext]`
+        }
+      }
     },
     server: {
       port: 5173,

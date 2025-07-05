@@ -107,9 +107,9 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             }
 
             .single-page {
-              width: 148mm;
-              height: 210mm;
-              padding: 8mm;
+              width: 240mm;
+              height: 90mm;
+              padding: 4mm 15mm;
               margin: 0 auto;
               background: white;
               box-sizing: border-box;
@@ -117,24 +117,24 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
 
             .print-header {
               text-align: center;
-              margin-bottom: 12px;
+              margin-bottom: 6px;
               border-bottom: 2px solid #000;
-              padding-bottom: 8px;
+              padding-bottom: 4px;
             }
 
             .print-title {
-              font-size: 14px;
+              font-size: 12px;
               font-weight: bold;
-              margin: 0 0 6px 0;
+              margin: 0 0 4px 0;
               letter-spacing: 1px;
             }
 
             .order-info-grid {
               display: grid;
-              grid-template-columns: 1fr 1fr;
-              gap: 4px;
+              grid-template-columns: 1fr 1fr 1fr 1fr;
+              gap: 8px;
               text-align: left;
-              font-size: 8px;
+              font-size: 7px;
             }
 
             .info-item {
@@ -167,14 +167,14 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             .print-table {
               width: 100%;
               border-collapse: collapse;
-              margin: 8px 0;
-              font-size: 7px;
+              margin: 4px 0;
+              font-size: 6px;
             }
 
             .print-table th,
             .print-table td {
               border: 1px solid #000;
-              padding: 4px 2px;
+              padding: 2px 1px;
               text-align: center;
               vertical-align: middle;
             }
@@ -182,7 +182,7 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             .print-table th {
               background-color: #f8f8f8;
               font-weight: bold;
-              font-size: 7px;
+              font-size: 6px;
             }
 
             .net-weight {
@@ -212,11 +212,11 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             }
 
             .notes-section {
-              margin: 6px 0;
+              margin: 3px 0;
               border: 1px solid #000;
-              padding: 4px;
-              min-height: 20px;
-              font-size: 7px;
+              padding: 2px;
+              min-height: 12px;
+              font-size: 6px;
             }
 
             .notes-label {
@@ -229,15 +229,15 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             }
 
             .signature-section {
-              margin-top: 10px;
+              margin-top: 6px;
             }
 
             .signature-row {
               display: grid;
               grid-template-columns: 1fr 1fr 1fr 1fr;
-              gap: 6px;
-              margin-bottom: 6px;
-              font-size: 7px;
+              gap: 8px;
+              margin-bottom: 4px;
+              font-size: 6px;
             }
 
             .signature-item {
@@ -248,9 +248,9 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
 
             .signature-line {
               display: inline-block;
-              width: 50px;
+              width: 35px;
               border-bottom: 1px solid #000;
-              height: 15px;
+              height: 12px;
             }
 
             .print-time {
@@ -261,52 +261,63 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
 
 
             @media print {
+              @page {
+                size: 240mm 90mm;
+                margin: 0;
+                orientation: landscape;
+              }
+              
               .print-container {
-                font-size: 8px !important;
+                font-size: 7px !important;
               }
               
               .single-page {
-                width: auto;
-                height: auto;
-                padding: 6mm;
+                width: 240mm;
+                height: 90mm;
+                padding: 4mm 15mm;
                 margin: 0;
                 page-break-inside: avoid;
               }
               
               .print-table {
-                font-size: 6px !important;
+                font-size: 5px !important;
               }
               
               .print-table th {
-                font-size: 6px !important;
+                font-size: 5px !important;
+              }
+              
+              .print-table th,
+              .print-table td {
+                padding: 1px !important;
               }
               
               .print-title {
-                font-size: 12px !important;
+                font-size: 10px !important;
               }
               
               .order-info-grid {
-                font-size: 7px !important;
+                font-size: 6px !important;
               }
               
               .order-no {
-                font-size: 7px !important;
+                font-size: 6px !important;
               }
               
               .signature-row {
-                font-size: 6px !important;
+                font-size: 5px !important;
               }
               
               .notes-section {
-                font-size: 6px !important;
+                font-size: 5px !important;
               }
               
               .total-label {
-                font-size: 7px !important;
+                font-size: 6px !important;
               }
               
               .total-amount {
-                font-size: 8px !important;
+                font-size: 7px !important;
               }
             }
           `
