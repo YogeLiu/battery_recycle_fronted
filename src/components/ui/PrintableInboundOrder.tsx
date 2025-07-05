@@ -102,9 +102,9 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             }
 
             .single-page {
-              width: 240mm;
-              height: 90mm;
-              padding: 3mm 6mm;
+              width: 198mm;
+              height: 84mm;
+              padding: 2mm 2mm 2mm 40mm;
               margin: 0 auto;
               background: white;
               box-sizing: border-box;
@@ -114,22 +114,22 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
 
             .print-header {
               text-align: center;
-              margin-bottom: 8px;
+              margin-bottom: 6px;
               border-bottom: 2px solid #000;
-              padding-bottom: 6px;
+              padding-bottom: 4px;
             }
 
             .print-title {
               font-size: 16px;
               font-weight: bold;
-              margin: 0 0 6px 0;
+              margin: 0 0 4px 0;
               letter-spacing: 1px;
             }
 
             .order-info-grid {
               display: grid;
               grid-template-columns: 1fr 1fr 1fr;
-              gap: 12px;
+              gap: 8px;
               text-align: left;
               font-size: 10px;
             }
@@ -164,7 +164,7 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             .print-table {
               width: 100%;
               border-collapse: collapse;
-              margin: 6px 0;
+              margin: 4px 0;
               font-size: 9px;
             }
 
@@ -216,10 +216,10 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             }
 
             .notes-section {
-              margin: 5px 0;
+              margin: 3px 0;
               border: 1px solid #000;
-              padding: 4px;
-              min-height: 16px;
+              padding: 3px;
+              min-height: 12px;
               font-size: 9px;
             }
 
@@ -234,37 +234,34 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
 
             .signature-section {
               margin-top: auto;
-              padding-top: 8px;
+              padding-top: 4px;
             }
 
             .signature-row {
               display: grid;
               grid-template-columns: 1fr 1fr 1fr 1fr;
-              gap: 12px;
-              margin-bottom: 6px;
+              gap: 8px;
+              margin-bottom: 4px;
               font-size: 9px;
             }
 
             .signature-item {
               display: flex;
               align-items: center;
-              gap: 6px;
+              gap: 4px;
             }
 
             .signature-line {
               display: inline-block;
-              width: 45px;
+              width: 35px;
               border-bottom: 1px solid #000;
-              height: 16px;
+              height: 12px;
             }
-
-
-
 
             @media print {
               @page {
                 size: 240mm 90mm;
-                margin: 0;
+                margin: 0 2mm 0 40mm;
                 orientation: portrait;
               }
               
@@ -273,9 +270,9 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               }
               
               .single-page {
-                width: 240mm;
-                height: 90mm;
-                padding: 3mm 6mm;
+                width: 198mm;
+                height: 84mm;
+                padding: 2mm 2mm 2mm 40mm;
                 margin: 0;
                 page-break-inside: avoid;
                 display: flex;
