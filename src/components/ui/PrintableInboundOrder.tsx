@@ -32,13 +32,13 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
           <table className="print-table">
             <thead>
               <tr>
-                <th style={{ width: '8%' }}>序号</th>
+                <th style={{ width: '5%' }}>序号</th>
                 <th style={{ width: '25%' }}>电池分类</th>
-                <th style={{ width: '12%' }}>毛重(KG)</th>
-                <th style={{ width: '12%' }}>皮重(KG)</th>
-                <th style={{ width: '12%' }}>净重(KG)</th>
-                <th style={{ width: '15%' }}>单价(元/KG)</th>
-                <th style={{ width: '16%' }}>小计(元)</th>
+                <th style={{ width: '12.5%' }}>毛重(KG)</th>
+                <th style={{ width: '12.5%' }}>皮重(KG)</th>
+                <th style={{ width: '12.5%' }}>净重(KG)</th>
+                <th style={{ width: '15.7%' }}>单价(元/KG)</th>
+                <th style={{ width: '16.8%' }}>小计(元)</th>
               </tr>
             </thead>
             <tbody>
@@ -102,9 +102,9 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             }
 
             .single-page {
-              width: 198mm;
+              width: 210mm;
               height: 84mm;
-              padding: 2mm 2mm 2mm 40mm;
+              padding: 2mm 5mm 2mm 25mm;
               margin: 0 auto;
               background: white;
               box-sizing: border-box;
@@ -127,9 +127,9 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             }
 
             .order-info-grid {
-              display: grid;
-              grid-template-columns: 1fr 1fr 1fr;
-              gap: 8px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
               text-align: left;
               font-size: 10px;
             }
@@ -261,7 +261,7 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             @media print {
               @page {
                 size: 240mm 90mm;
-                margin: 0 2mm 0 40mm;
+                margin: 0 5mm 0 25mm;
                 orientation: portrait;
               }
               
@@ -270,9 +270,9 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               }
               
               .single-page {
-                width: 198mm;
+                width: 210mm;
                 height: 84mm;
-                padding: 2mm 2mm 2mm 40mm;
+                padding: 2mm 5mm 2mm 25mm;
                 margin: 0;
                 page-break-inside: avoid;
                 display: flex;
