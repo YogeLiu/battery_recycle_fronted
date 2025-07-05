@@ -7,13 +7,12 @@ interface PrintableInboundOrderProps {
 
 const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderProps>(
   ({ orderDetail }, ref) => {
-    const printDate = new Date().toLocaleString('zh-CN');
 
     return (
       <div ref={ref} className="print-container">
         <div className="single-page">
           <div className="print-header">
-            <h1 className="print-title">进销存入库单</h1>
+            <h1 className="print-title">张家口悦翰新能源有限公司入库单</h1>
             <div className="order-info-grid">
               <div className="info-item">
                 <span className="label">订单号：</span>
@@ -26,10 +25,6 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               <div className="info-item">
                 <span className="label">创建时间：</span>
                 <span className="value">{new Date(orderDetail.order.created_at).toLocaleString('zh-CN')}</span>
-              </div>
-              <div className="info-item">
-                <span className="label">状态：</span>
-                <span className="value">{orderDetail.order.status === 'completed' ? '已完成' : '处理中'}</span>
               </div>
             </div>
           </div>
@@ -93,7 +88,7 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
                 <span className="signature-line"></span>
               </div>
             </div>
-            <div className="print-time">打印时间：{printDate}</div>
+
           </div>
         </div>
 
@@ -113,6 +108,8 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               margin: 0 auto;
               background: white;
               box-sizing: border-box;
+              display: flex;
+              flex-direction: column;
             }
 
             .print-header {
@@ -131,7 +128,7 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
 
             .order-info-grid {
               display: grid;
-              grid-template-columns: 1fr 1fr 1fr 1fr;
+              grid-template-columns: 1fr 1fr 1fr;
               gap: 12px;
               text-align: left;
               font-size: 10px;
@@ -182,12 +179,14 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             .print-table th {
               background-color: #f8f8f8;
               font-weight: bold;
-              font-size: 9px;
+              font-size: 7px;
+              padding: 1px 2px;
+              line-height: 1.1;
             }
 
             .net-weight {
               font-weight: bold;
-              color: #2980b9;
+              color: #000;
             }
 
             .sub-total {
@@ -199,15 +198,20 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               background-color: #f0f0f0;
             }
 
+            .total-row td {
+              padding: 1px 2px;
+              line-height: 1.1;
+            }
+
             .total-label {
               text-align: right;
-              font-size: 11px;
+              font-size: 8px;
               font-weight: bold;
             }
 
             .total-amount {
-              font-size: 12px;
-              color: #e74c3c;
+              font-size: 9px;
+              color: #000;
               font-weight: bold;
             }
 
@@ -229,7 +233,8 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             }
 
             .signature-section {
-              margin-top: 8px;
+              margin-top: auto;
+              padding-top: 8px;
             }
 
             .signature-row {
@@ -253,11 +258,7 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               height: 16px;
             }
 
-            .print-time {
-              text-align: right;
-              font-size: 8px;
-              color: #666;
-            }
+
 
 
             @media print {
@@ -277,6 +278,8 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
                 padding: 3mm 6mm;
                 margin: 0;
                 page-break-inside: avoid;
+                display: flex;
+                flex-direction: column;
               }
               
               .print-table {
@@ -284,12 +287,19 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               }
               
               .print-table th {
-                font-size: 9px !important;
+                font-size: 7px !important;
+                padding: 1px 2px !important;
+                line-height: 1.1 !important;
               }
               
               .print-table th,
               .print-table td {
                 padding: 3px 2px !important;
+              }
+              
+              .total-row td {
+                padding: 1px 2px !important;
+                line-height: 1.1 !important;
               }
               
               .print-title {
@@ -313,11 +323,11 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               }
               
               .total-label {
-                font-size: 11px !important;
+                font-size: 8px !important;
               }
               
               .total-amount {
-                font-size: 12px !important;
+                font-size: 9px !important;
               }
             }
           `
