@@ -8,7 +8,7 @@ interface PrintableInboundOrderProps {
 const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderProps>(
   ({ orderDetail }, ref) => {
     const printDate = new Date().toLocaleString('zh-CN');
-    
+
     return (
       <div ref={ref} className="print-container">
         <div className="single-page">
@@ -37,13 +37,13 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
           <table className="print-table">
             <thead>
               <tr>
-                <th style={{width: '8%'}}>序号</th>
-                <th style={{width: '25%'}}>电池分类</th>
-                <th style={{width: '12%'}}>毛重(KG)</th>
-                <th style={{width: '12%'}}>皮重(KG)</th>
-                <th style={{width: '12%'}}>净重(KG)</th>
-                <th style={{width: '15%'}}>单价(元/KG)</th>
-                <th style={{width: '16%'}}>小计(元)</th>
+                <th style={{ width: '8%' }}>序号</th>
+                <th style={{ width: '25%' }}>电池分类</th>
+                <th style={{ width: '12%' }}>毛重(KG)</th>
+                <th style={{ width: '12%' }}>皮重(KG)</th>
+                <th style={{ width: '12%' }}>净重(KG)</th>
+                <th style={{ width: '15%' }}>单价(元/KG)</th>
+                <th style={{ width: '16%' }}>小计(元)</th>
               </tr>
             </thead>
             <tbody>
@@ -101,15 +101,15 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
           __html: `
             .print-container {
               font-family: Arial, 'Microsoft YaHei', sans-serif;
-              font-size: 9px;
-              line-height: 1.2;
+              font-size: 12px;
+              line-height: 1.3;
               color: #000;
             }
 
             .single-page {
               width: 240mm;
               height: 90mm;
-              padding: 4mm 15mm;
+              padding: 3mm 6mm;
               margin: 0 auto;
               background: white;
               box-sizing: border-box;
@@ -117,24 +117,24 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
 
             .print-header {
               text-align: center;
-              margin-bottom: 6px;
+              margin-bottom: 8px;
               border-bottom: 2px solid #000;
-              padding-bottom: 4px;
+              padding-bottom: 6px;
             }
 
             .print-title {
-              font-size: 12px;
+              font-size: 16px;
               font-weight: bold;
-              margin: 0 0 4px 0;
+              margin: 0 0 6px 0;
               letter-spacing: 1px;
             }
 
             .order-info-grid {
               display: grid;
               grid-template-columns: 1fr 1fr 1fr 1fr;
-              gap: 8px;
+              gap: 12px;
               text-align: left;
-              font-size: 7px;
+              font-size: 10px;
             }
 
             .info-item {
@@ -155,26 +155,26 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             .order-no {
               font-family: monospace;
               font-weight: bold;
-              font-size: 8px;
+              font-size: 11px;
             }
 
             .total-highlight {
               font-weight: bold;
-              font-size: 16px;
+              font-size: 18px;
               color: #e74c3c;
             }
 
             .print-table {
               width: 100%;
               border-collapse: collapse;
-              margin: 4px 0;
-              font-size: 6px;
+              margin: 6px 0;
+              font-size: 9px;
             }
 
             .print-table th,
             .print-table td {
               border: 1px solid #000;
-              padding: 2px 1px;
+              padding: 3px 2px;
               text-align: center;
               vertical-align: middle;
             }
@@ -182,7 +182,7 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             .print-table th {
               background-color: #f8f8f8;
               font-weight: bold;
-              font-size: 6px;
+              font-size: 9px;
             }
 
             .net-weight {
@@ -201,27 +201,27 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
 
             .total-label {
               text-align: right;
-              font-size: 8px;
+              font-size: 11px;
               font-weight: bold;
             }
 
             .total-amount {
-              font-size: 9px;
+              font-size: 12px;
               color: #e74c3c;
               font-weight: bold;
             }
 
             .notes-section {
-              margin: 3px 0;
+              margin: 5px 0;
               border: 1px solid #000;
-              padding: 2px;
-              min-height: 12px;
-              font-size: 6px;
+              padding: 4px;
+              min-height: 16px;
+              font-size: 9px;
             }
 
             .notes-label {
               font-weight: bold;
-              margin-bottom: 3px;
+              margin-bottom: 4px;
             }
 
             .notes-content {
@@ -229,33 +229,33 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             }
 
             .signature-section {
-              margin-top: 6px;
+              margin-top: 8px;
             }
 
             .signature-row {
               display: grid;
               grid-template-columns: 1fr 1fr 1fr 1fr;
-              gap: 8px;
-              margin-bottom: 4px;
-              font-size: 6px;
+              gap: 12px;
+              margin-bottom: 6px;
+              font-size: 9px;
             }
 
             .signature-item {
               display: flex;
               align-items: center;
-              gap: 4px;
+              gap: 6px;
             }
 
             .signature-line {
               display: inline-block;
-              width: 35px;
+              width: 45px;
               border-bottom: 1px solid #000;
-              height: 12px;
+              height: 16px;
             }
 
             .print-time {
               text-align: right;
-              font-size: 6px;
+              font-size: 8px;
               color: #666;
             }
 
@@ -264,60 +264,60 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               @page {
                 size: 240mm 90mm;
                 margin: 0;
-                orientation: landscape;
+                orientation: portrait;
               }
               
               .print-container {
-                font-size: 7px !important;
+                font-size: 12px !important;
               }
               
               .single-page {
                 width: 240mm;
                 height: 90mm;
-                padding: 4mm 15mm;
+                padding: 3mm 6mm;
                 margin: 0;
                 page-break-inside: avoid;
               }
               
               .print-table {
-                font-size: 5px !important;
+                font-size: 9px !important;
               }
               
               .print-table th {
-                font-size: 5px !important;
+                font-size: 9px !important;
               }
               
               .print-table th,
               .print-table td {
-                padding: 1px !important;
+                padding: 3px 2px !important;
               }
               
               .print-title {
-                font-size: 10px !important;
+                font-size: 16px !important;
               }
               
               .order-info-grid {
-                font-size: 6px !important;
+                font-size: 10px !important;
               }
               
               .order-no {
-                font-size: 6px !important;
+                font-size: 11px !important;
               }
               
               .signature-row {
-                font-size: 5px !important;
+                font-size: 9px !important;
               }
               
               .notes-section {
-                font-size: 5px !important;
+                font-size: 9px !important;
               }
               
               .total-label {
-                font-size: 6px !important;
+                font-size: 11px !important;
               }
               
               .total-amount {
-                font-size: 7px !important;
+                font-size: 12px !important;
               }
             }
           `
