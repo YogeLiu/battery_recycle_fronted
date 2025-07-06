@@ -174,10 +174,6 @@ const Inbound = () => {
     setFormData({ ...formData, items: updatedItems });
   };
 
-  const getCategoryName = (categoryId: number) => {
-    const category = categories.find(c => c.id === categoryId);
-    return category ? category.name : '未知分类';
-  };
 
   const openCreateModal = () => {
     if (categories.length === 0) {
@@ -459,7 +455,7 @@ const Inbound = () => {
             <div className="space-y-4 max-h-80 overflow-y-auto border border-gray-200 rounded-lg p-4">
               {formData.items.map((item, index) => (
                 <div key={index} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         电池分类 <span className="text-red-500">*</span>
@@ -485,14 +481,19 @@ const Inbound = () => {
                         毛重 (KG) <span className="text-red-500">*</span>
                       </label>
                       <input
-                        type="number"
-                        step="0.01"
-                        min="0.01"
+                        type="text"
+                        inputMode="decimal"
                         value={item.gross_weight || ''}
-                        onChange={(e) => updateItem(index, 'gross_weight', parseFloat(e.target.value) || 0)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                            updateItem(index, 'gross_weight', value === '' ? 0 : parseFloat(value) || 0);
+                          }
+                        }}
                         required
                         disabled={submitting}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+                        className="inbound-form-input"
+                        onWheel={(e) => (e.target as HTMLInputElement).blur()}
                         placeholder="0.00"
                       />
                     </div>
@@ -502,14 +503,19 @@ const Inbound = () => {
                         皮重 (KG) <span className="text-red-500">*</span>
                       </label>
                       <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={item.tare_weight || ''}
-                        onChange={(e) => updateItem(index, 'tare_weight', parseFloat(e.target.value) || 0)}
+                        type="text"
+                        inputMode="decimal"
+                        value={item.tare_weight === 0 ? '0.00' : (item.tare_weight || '')}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                            updateItem(index, 'tare_weight', value === '' ? 0 : parseFloat(value) || 0);
+                          }
+                        }}
                         required
                         disabled={submitting}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+                        className={`inbound-form-input ${item.tare_weight === 0 ? 'text-gray-500' : ''}`}
+                        onWheel={(e) => (e.target as HTMLInputElement).blur()}
                         placeholder="0.00"
                       />
                     </div>
@@ -518,29 +524,35 @@ const Inbound = () => {
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         单价 (元/KG) <span className="text-red-500">*</span>
                       </label>
-                      <div className="flex">
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0.01"
-                          value={item.unit_price || ''}
-                          onChange={(e) => updateItem(index, 'unit_price', parseFloat(e.target.value) || 0)}
-                          required
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={item.unit_price || ''}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                            updateItem(index, 'unit_price', value === '' ? 0 : parseFloat(value) || 0);
+                          }
+                        }}
+                        required
+                        disabled={submitting}
+                        className="inbound-form-input"
+                        onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                        placeholder="0.00"
+                      />
+                    </div>
+
+                    <div className="flex items-end">
+                      {formData.items.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeItem(index)}
                           disabled={submitting}
-                          className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-l focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
-                          placeholder="0.00"
-                        />
-                        {formData.items.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeItem(index)}
-                            disabled={submitting}
-                            className="px-3 py-2 bg-red-600 text-white text-sm rounded-r hover:bg-red-700 disabled:bg-gray-400 transition-colors duration-200"
-                          >
-                            删除
-                          </button>
-                        )}
-                      </div>
+                          className="w-full px-3 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:bg-gray-400 transition-colors duration-200"
+                        >
+                          删除
+                        </button>
+                      )}
                     </div>
                   </div>
 

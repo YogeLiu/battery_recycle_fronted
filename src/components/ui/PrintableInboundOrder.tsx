@@ -7,7 +7,6 @@ interface PrintableInboundOrderProps {
 
 const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderProps>(
   ({ orderDetail }, ref) => {
-
     return (
       <div ref={ref} className="print-container">
         <div className="single-page">
@@ -22,23 +21,19 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
                 <span className="label">供应商：</span>
                 <span className="value">{orderDetail.order.supplier_name}</span>
               </div>
-              <div className="info-item">
-                <span className="label">创建时间：</span>
-                <span className="value">{new Date(orderDetail.order.created_at).toLocaleString('zh-CN')}</span>
-              </div>
             </div>
           </div>
 
           <table className="print-table">
             <thead>
               <tr>
-                <th style={{ width: '5%' }}>序号</th>
-                <th style={{ width: '25%' }}>电池分类</th>
+                <th style={{ width: '7%' }}>序号</th>
+                <th style={{ width: '22%' }}>电池分类</th>
                 <th style={{ width: '12.5%' }}>毛重(KG)</th>
-                <th style={{ width: '12.5%' }}>皮重(KG)</th>
+                <th style={{ width: '15%' }}>皮重(KG)</th>
                 <th style={{ width: '12.5%' }}>净重(KG)</th>
-                <th style={{ width: '15.7%' }}>单价(元/KG)</th>
-                <th style={{ width: '16.8%' }}>小计(元)</th>
+                <th style={{ width: '18%' }}>单价(元/KG)</th>
+                <th style={{ width: '13%' }}>小计(元)</th>
               </tr>
             </thead>
             <tbody>
@@ -72,10 +67,6 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
           <div className="signature-section">
             <div className="signature-row">
               <div className="signature-item">
-                <span>制单人：</span>
-                <span className="signature-line"></span>
-              </div>
-              <div className="signature-item">
                 <span>审核人：</span>
                 <span className="signature-line"></span>
               </div>
@@ -84,8 +75,12 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
                 <span className="signature-line"></span>
               </div>
               <div className="signature-item">
-                <span>客户签收：</span>
+                <span>客户：</span>
                 <span className="signature-line"></span>
+              </div>
+              <div className="signature-item">
+                <span>创建时间：</span>
+                <span className="date-text">{new Date(orderDetail.order.created_at).toLocaleDateString('zh-CN')}</span>
               </div>
             </div>
 
@@ -104,7 +99,8 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
 
             .single-page {
               width: 100% !important;
-              min-height: 80mm !important; max-height: 100% !important;
+              min-height: 80mm !important;
+              max-height: 100% !important;
               padding: 2mm 1cm 2mm 2.5cm;
               margin: 0 auto;
               background: white;
@@ -132,7 +128,8 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               justify-content: space-between;
               align-items: center;
               text-align: left;
-              font-size: 10px;
+              font-size: 9px;
+              width: 100%;
             }
 
             .info-item {
@@ -153,7 +150,7 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             .order-no {
               font-family: monospace;
               font-weight: bold;
-              font-size: 11px;
+              font-size: 10px;
             }
 
             .total-highlight {
@@ -166,7 +163,7 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               width: 100%;
               border-collapse: collapse;
               margin: 4px 0;
-              font-size: 9px;
+              font-size: 10px;
             }
 
             .print-table th,
@@ -180,9 +177,13 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             .print-table th {
               background-color: #f8f8f8;
               font-weight: bold;
-              font-size: 7px;
+              font-size: 8px;
               padding: 1px 2px;
               line-height: 1.1;
+            }
+
+            .print-table tbody tr {
+              page-break-inside: avoid;
             }
 
             .net-weight {
@@ -216,6 +217,8 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               font-weight: bold;
             }
 
+
+
             .notes-section {
               margin: 3px 0;
               border: 1px solid #000;
@@ -236,14 +239,15 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             .signature-section {
               margin-top: auto;
               padding-top: 4px;
+              page-break-inside: avoid;
             }
 
             .signature-row {
               display: grid;
               grid-template-columns: 1fr 1fr 1fr 1fr;
-              gap: 8px;
+              gap: 6px;
               margin-bottom: 4px;
-              font-size: 9px;
+              font-size: 7px;
             }
 
             .signature-item {
@@ -257,6 +261,11 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               width: 35px;
               border-bottom: 1px solid #000;
               height: 12px;
+            }
+
+            .date-text {
+              font-size: 7px;
+              color: #000;
             }
 
             @media print {
@@ -276,7 +285,8 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               
               .single-page {
                 width: 100% !important;
-                min-height: 80mm !important; max-height: 100% !important;
+                min-height: 80mm !important;
+                max-height: 100% !important;
                 padding: 2mm 1cm 2mm 2.5cm;
                 margin: 0;
                 page-break-inside: avoid;
@@ -285,11 +295,23 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               }
               
               .print-table {
-                font-size: 9px !important;
+                font-size: 10px !important;
+              }
+
+              .print-table thead {
+                display: table-header-group;
+              }
+
+              .print-table tbody tr {
+                page-break-inside: avoid !important;
+              }
+
+              .print-table tfoot {
+                display: table-footer-group;
               }
               
               .print-table th {
-                font-size: 7px !important;
+                font-size: 8px !important;
                 padding: 1px 2px !important;
                 line-height: 1.1 !important;
               }
@@ -309,15 +331,23 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               }
               
               .order-info-grid {
-                font-size: 10px !important;
+                font-size: 9px !important;
               }
               
               .order-no {
-                font-size: 11px !important;
+                font-size: 10px !important;
               }
               
               .signature-row {
-                font-size: 9px !important;
+                font-size: 7px !important;
+              }
+
+              .signature-section {
+                page-break-inside: avoid !important;
+              }
+
+              .date-text {
+                font-size: 7px !important;
               }
               
               .notes-section {

@@ -16,18 +16,18 @@ const InboundFixed = () => {
     const [apiError, setApiError] = useState<boolean>(false);  // API连接错误状态
     const [showModal, setShowModal] = useState(false);
     const [submitting, setSubmitting] = useState(false);
-    
+
     // 详情相关状态
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [orderDetail, setOrderDetail] = useState<InboundOrderDetailResponse | null>(null);
     const [loadingDetail, setLoadingDetail] = useState(false);
-    
+
     // 删除相关状态
     const [deletingOrderId, setDeletingOrderId] = useState<number | null>(null);
-    
+
     // 打印相关
     const printRef = useRef<HTMLDivElement>(null);
-    
+
     // 搜索相关状态
     const [searchParams, setSearchParams] = useState<InboundOrderSearchParams>({
         page: 1,
@@ -37,7 +37,7 @@ const InboundFixed = () => {
         supplier: ''
     });
     const [showSearchForm, setShowSearchForm] = useState(false);
-    
+
     const [formData, setFormData] = useState<CreateInboundOrderRequest>({
         supplier_name: '',
         items: [{ category_id: 0, gross_weight: 0, tare_weight: 0, unit_price: 0 }],
@@ -325,15 +325,15 @@ const InboundFixed = () => {
                     <p className="text-gray-600 mt-1">管理电池入库订单</p>
                 </div>
                 <div className="flex space-x-3">
-                    <Button 
-                        onClick={() => setShowSearchForm(true)} 
+                    <Button
+                        onClick={() => setShowSearchForm(true)}
                         variant="secondary"
                     >
                         <Search className="h-4 w-4 mr-2" />
                         筛选订单
                     </Button>
-                    <Button 
-                        onClick={openCreateModal} 
+                    <Button
+                        onClick={openCreateModal}
                         disabled={categories.length === 0}
                     >
                         <Plus className="h-4 w-4 mr-2" />
@@ -413,7 +413,7 @@ const InboundFixed = () => {
                                         <span className={`px-3 py-1 text-xs font-medium rounded-full ${order.status === 'completed'
                                             ? 'bg-green-100 text-green-800'
                                             : 'bg-yellow-100 text-yellow-800'
-                                        }`}>
+                                            }`}>
                                             {order.status === 'completed' ? '已完成' : '处理中'}
                                         </span>
                                     </TableCell>
@@ -484,7 +484,7 @@ const InboundFixed = () => {
                             />
                         </div>
                     </div>
-                    
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             供应商（模糊搜索）
@@ -563,7 +563,7 @@ const InboundFixed = () => {
                         <div className="space-y-4 max-h-80 overflow-y-auto border border-gray-200 rounded-lg p-4">
                             {formData.items.map((item, index) => (
                                 <div key={index} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                                         <div>
                                             <label className="block text-xs font-medium text-gray-700 mb-1">
                                                 电池分类 <span className="text-red-500">*</span>
@@ -589,14 +589,19 @@ const InboundFixed = () => {
                                                 毛重 (KG) <span className="text-red-500">*</span>
                                             </label>
                                             <input
-                                                type="number"
-                                                step="0.01"
-                                                min="0.01"
+                                                type="text"
+                                                inputMode="decimal"
                                                 value={item.gross_weight || ''}
-                                                onChange={(e) => updateItem(index, 'gross_weight', parseFloat(e.target.value) || 0)}
+                                                onChange={(e) => {
+                                                    const value = e.target.value;
+                                                    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                                                        updateItem(index, 'gross_weight', value === '' ? 0 : parseFloat(value) || 0);
+                                                    }
+                                                }}
                                                 required
                                                 disabled={submitting}
                                                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+                                                onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                                 placeholder="0.00"
                                             />
                                         </div>
@@ -606,14 +611,19 @@ const InboundFixed = () => {
                                                 皮重 (KG) <span className="text-red-500">*</span>
                                             </label>
                                             <input
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                value={item.tare_weight || ''}
-                                                onChange={(e) => updateItem(index, 'tare_weight', parseFloat(e.target.value) || 0)}
+                                                type="text"
+                                                inputMode="decimal"
+                                                value={item.tare_weight === 0 ? '0.00' : (item.tare_weight || '')}
+                                                onChange={(e) => {
+                                                    const value = e.target.value;
+                                                    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                                                        updateItem(index, 'tare_weight', value === '' ? 0 : parseFloat(value) || 0);
+                                                    }
+                                                }}
                                                 required
                                                 disabled={submitting}
-                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+                                                className={`w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 ${item.tare_weight === 0 ? 'text-gray-500' : ''}`}
+                                                onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                                 placeholder="0.00"
                                             />
                                         </div>
@@ -622,29 +632,35 @@ const InboundFixed = () => {
                                             <label className="block text-xs font-medium text-gray-700 mb-1">
                                                 单价 (元/KG) <span className="text-red-500">*</span>
                                             </label>
-                                            <div className="flex">
-                                                <input
-                                                    type="number"
-                                                    step="0.01"
-                                                    min="0.01"
-                                                    value={item.unit_price || ''}
-                                                    onChange={(e) => updateItem(index, 'unit_price', parseFloat(e.target.value) || 0)}
-                                                    required
+                                            <input
+                                                type="text"
+                                                inputMode="decimal"
+                                                value={item.unit_price || ''}
+                                                onChange={(e) => {
+                                                    const value = e.target.value;
+                                                    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                                                        updateItem(index, 'unit_price', value === '' ? 0 : parseFloat(value) || 0);
+                                                    }
+                                                }}
+                                                required
+                                                disabled={submitting}
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+                                                onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+
+                                        <div className="flex items-end">
+                                            {formData.items.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeItem(index)}
                                                     disabled={submitting}
-                                                    className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-l focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
-                                                    placeholder="0.00"
-                                                />
-                                                {formData.items.length > 1 && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removeItem(index)}
-                                                        disabled={submitting}
-                                                        className="px-3 py-2 bg-red-600 text-white text-sm rounded-r hover:bg-red-700 disabled:bg-gray-400 transition-colors duration-200"
-                                                    >
-                                                        删除
-                                                    </button>
-                                                )}
-                                            </div>
+                                                    className="w-full px-3 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:bg-gray-400 transition-colors duration-200"
+                                                >
+                                                    删除
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
 
@@ -748,7 +764,7 @@ const InboundFixed = () => {
                                         <span className={`px-3 py-1 text-xs font-medium rounded-full ${orderDetail.order.status === 'completed'
                                             ? 'bg-green-100 text-green-800'
                                             : 'bg-yellow-100 text-yellow-800'
-                                        }`}>
+                                            }`}>
                                             {orderDetail.order.status === 'completed' ? '已完成' : '处理中'}
                                         </span>
                                     </p>
@@ -861,7 +877,7 @@ const InboundFixed = () => {
             {/* 隐藏的打印组件 */}
             {orderDetail && (
                 <div style={{ display: 'none' }}>
-                    <PrintableInboundOrder 
+                    <PrintableInboundOrder
                         ref={printRef}
                         orderDetail={orderDetail}
                     />
