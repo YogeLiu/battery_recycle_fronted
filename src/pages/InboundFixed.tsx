@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Eye, TrendingUp, AlertTriangle, Search, Trash2, Printer } from 'lucide-react';
+import { Plus, Eye, TrendingUp, AlertTriangle, Trash2, Search, RefreshCcw, Printer } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
 import { apiService, InboundOrderSearchParams } from '../services/api';
-import { InboundOrder, BatteryCategory, CreateInboundOrderRequest, InboundOrderDetailResponse } from '../types';
+import { InboundOrder, BatteryCategory, CreateInboundOrderRequest, InboundOrderDetailResponse, CreateInboundOrderItem } from '../types';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import { Table, TableHeader, TableBody, TableRow, TableCell, TableHeaderCell } from '../components/ui/Table';
 import PrintableInboundOrder from '../components/ui/PrintableInboundOrder';
+import DecimalInput from '../components/ui/DecimalInput';
 
 const InboundFixed = () => {
     const [orders, setOrders] = useState<InboundOrder[]>([]);
@@ -250,7 +251,8 @@ const InboundFixed = () => {
         });
     };
 
-    const updateItem = (index: number, field: string, value: number) => {
+    // 修改函数签名，使用泛型类型让它能接受不同类型的字段值
+    const updateItem = <T extends string | number>(index: number, field: string, value: T) => {
         const updatedItems = [...formData.items];
         updatedItems[index] = { ...updatedItems[index], [field]: value };
         setFormData({ ...formData, items: updatedItems });
@@ -588,20 +590,12 @@ const InboundFixed = () => {
                                             <label className="block text-xs font-medium text-gray-700 mb-1">
                                                 毛重 (KG) <span className="text-red-500">*</span>
                                             </label>
-                                            <input
-                                                type="text"
-                                                inputMode="decimal"
-                                                value={item.gross_weight || ''}
-                                                onChange={(e) => {
-                                                    const value = e.target.value;
-                                                    if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                                                        updateItem(index, 'gross_weight', value === '' ? 0 : parseFloat(value) || 0);
-                                                    }
-                                                }}
-                                                required
+                                            <DecimalInput
+                                                value={item.gross_weight}
+                                                onChange={(value) => updateItem(index, 'gross_weight', value)}
+                                                required={true}
                                                 disabled={submitting}
-                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
-                                                onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                                                className="w-full"
                                                 placeholder="0.00"
                                             />
                                         </div>
@@ -610,20 +604,12 @@ const InboundFixed = () => {
                                             <label className="block text-xs font-medium text-gray-700 mb-1">
                                                 皮重 (KG) <span className="text-red-500">*</span>
                                             </label>
-                                            <input
-                                                type="text"
-                                                inputMode="decimal"
-                                                value={item.tare_weight === 0 ? '0.00' : (item.tare_weight || '')}
-                                                onChange={(e) => {
-                                                    const value = e.target.value;
-                                                    if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                                                        updateItem(index, 'tare_weight', value === '' ? 0 : parseFloat(value) || 0);
-                                                    }
-                                                }}
-                                                required
+                                            <DecimalInput
+                                                value={item.tare_weight}
+                                                onChange={(value) => updateItem(index, 'tare_weight', value)}
+                                                required={true}
                                                 disabled={submitting}
-                                                className={`w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 ${item.tare_weight === 0 ? 'text-gray-500' : ''}`}
-                                                onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                                                className={item.tare_weight === 0 ? "text-gray-500 w-full" : "w-full"}
                                                 placeholder="0.00"
                                             />
                                         </div>
@@ -632,20 +618,12 @@ const InboundFixed = () => {
                                             <label className="block text-xs font-medium text-gray-700 mb-1">
                                                 单价 (元/KG) <span className="text-red-500">*</span>
                                             </label>
-                                            <input
-                                                type="text"
-                                                inputMode="decimal"
-                                                value={item.unit_price || ''}
-                                                onChange={(e) => {
-                                                    const value = e.target.value;
-                                                    if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                                                        updateItem(index, 'unit_price', value === '' ? 0 : parseFloat(value) || 0);
-                                                    }
-                                                }}
-                                                required
+                                            <DecimalInput
+                                                value={item.unit_price}
+                                                onChange={(value) => updateItem(index, 'unit_price', value)}
+                                                required={true}
                                                 disabled={submitting}
-                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
-                                                onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                                                className="w-full"
                                                 placeholder="0.00"
                                             />
                                         </div>

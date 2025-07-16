@@ -5,6 +5,7 @@ import { InboundOrder, BatteryCategory, CreateInboundOrderRequest, InboundOrderD
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import { Table, TableHeader, TableBody, TableRow, TableCell, TableHeaderCell } from '../components/ui/Table';
+import DecimalInput from '../components/ui/DecimalInput';
 
 const Inbound = () => {
   const [orders, setOrders] = useState<InboundOrder[]>([]);
@@ -480,21 +481,12 @@ const Inbound = () => {
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         毛重 (KG) <span className="text-red-500">*</span>
                       </label>
-                      <input
-                        type="text"
-                        inputMode="decimal"
-                        value={item.gross_weight || ''}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          // 允许输入为空或者匹配数字格式（包括小数）
-                          if (value === '' || /^(\d+(\.\d*)?|\.\d+)$/.test(value)) {
-                            updateItem(index, 'gross_weight', value === '' ? 0 : parseFloat(value));
-                          }
-                        }}
-                        required
+                      <DecimalInput
+                        value={item.gross_weight}
+                        onChange={(value) => updateItem(index, 'gross_weight', value)}
+                        required={true}
                         disabled={submitting}
                         className="inbound-form-input"
-                        onWheel={(e) => (e.target as HTMLInputElement).blur()}
                         placeholder="0.00"
                       />
                     </div>
@@ -503,21 +495,12 @@ const Inbound = () => {
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         皮重 (KG) <span className="text-red-500">*</span>
                       </label>
-                      <input
-                        type="text"
-                        inputMode="decimal"
-                        value={item.tare_weight === 0 ? '0.00' : (item.tare_weight || '')}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          // 允许输入为空或者匹配数字格式（包括小数）
-                          if (value === '' || /^(\d+(\.\d*)?|\.\d+)$/.test(value)) {
-                            updateItem(index, 'tare_weight', value === '' ? 0 : parseFloat(value));
-                          }
-                        }}
-                        required
+                      <DecimalInput
+                        value={item.tare_weight}
+                        onChange={(value) => updateItem(index, 'tare_weight', value)}
+                        required={true}
                         disabled={submitting}
                         className={`inbound-form-input ${item.tare_weight === 0 ? 'text-gray-500' : ''}`}
-                        onWheel={(e) => (e.target as HTMLInputElement).blur()}
                         placeholder="0.00"
                       />
                     </div>
@@ -526,21 +509,12 @@ const Inbound = () => {
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         单价 (元/KG) <span className="text-red-500">*</span>
                       </label>
-                      <input
-                        type="text"
-                        inputMode="decimal"
-                        value={item.unit_price || ''}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          // 允许输入为空或者匹配数字格式（包括小数）
-                          if (value === '' || /^(\d+(\.\d*)?|\.\d+)$/.test(value)) {
-                            updateItem(index, 'unit_price', value === '' ? 0 : parseFloat(value));
-                          }
-                        }}
-                        required
+                      <DecimalInput
+                        value={item.unit_price}
+                        onChange={(value) => updateItem(index, 'unit_price', value)}
+                        required={true}
                         disabled={submitting}
                         className="inbound-form-input"
-                        onWheel={(e) => (e.target as HTMLInputElement).blur()}
                         placeholder="0.00"
                       />
                     </div>
