@@ -486,8 +486,9 @@ const Inbound = () => {
                         value={item.gross_weight || ''}
                         onChange={(e) => {
                           const value = e.target.value;
-                          if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                            updateItem(index, 'gross_weight', value === '' ? 0 : parseFloat(value) || 0);
+                          // 允许输入为空或者匹配数字格式（包括小数）
+                          if (value === '' || /^(\d+(\.\d*)?|\.\d+)$/.test(value)) {
+                            updateItem(index, 'gross_weight', value === '' ? 0 : parseFloat(value));
                           }
                         }}
                         required
@@ -508,8 +509,9 @@ const Inbound = () => {
                         value={item.tare_weight === 0 ? '0.00' : (item.tare_weight || '')}
                         onChange={(e) => {
                           const value = e.target.value;
-                          if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                            updateItem(index, 'tare_weight', value === '' ? 0 : parseFloat(value) || 0);
+                          // 允许输入为空或者匹配数字格式（包括小数）
+                          if (value === '' || /^(\d+(\.\d*)?|\.\d+)$/.test(value)) {
+                            updateItem(index, 'tare_weight', value === '' ? 0 : parseFloat(value));
                           }
                         }}
                         required
@@ -530,8 +532,9 @@ const Inbound = () => {
                         value={item.unit_price || ''}
                         onChange={(e) => {
                           const value = e.target.value;
-                          if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                            updateItem(index, 'unit_price', value === '' ? 0 : parseFloat(value) || 0);
+                          // 允许输入为空或者匹配数字格式（包括小数）
+                          if (value === '' || /^(\d+(\.\d*)?|\.\d+)$/.test(value)) {
+                            updateItem(index, 'unit_price', value === '' ? 0 : parseFloat(value));
                           }
                         }}
                         required
