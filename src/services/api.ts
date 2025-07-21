@@ -1,4 +1,4 @@
-import { InboundOrderDetailResponse } from '../types';
+import { InboundOrderDetailResponse, PaginatedInboundOrdersResponse } from '../types';
 import { envConfig } from '../config/env';
 
 const API_BASE_URL = envConfig.apiBaseUrl;
@@ -122,53 +122,48 @@ class ApiService {
     });
   }
 
-  // Inbound Orders - 修改为新的搜索接口
+  // Inbound Orders - 修改为新的搜索接口，返回分页信息
   async getInboundOrders(params?: InboundOrderSearchParams) {
     // 设置默认参数
     const searchParams: InboundOrderSearchParams = {
       page: 1,
-      page_size: 100,
+      page_size: 20, // 默认每页20条
       start_date: '',
       end_date: '',
       supplier: '',
       ...params
     };
 
-    const response = await this.request<{ 
-      page: number; 
-      page_size: number; 
-      orders: any[]; 
-      total: number 
-    }>('/inbound/orders/search', {
+    const response = await this.request<PaginatedInboundOrdersResponse>('/inbound/orders/search', {
       method: 'POST',
       body: JSON.stringify(searchParams),
     });
     
-    // 返回 orders 数组，保持原有接口兼容性
-    return response.orders;
+    // 返回完整的分页信息
+    return response;
   }
 
-  // 新增：专门的搜索方法，返回完整响应信息
-  async searchInboundOrders(params: InboundOrderSearchParams) {
-    const searchParams: InboundOrderSearchParams = {
-      page: 1,
-      page_size: 100,
-      start_date: '',
-      end_date: '',
-      supplier: '',
-      ...params
-    };
+  // // 新增：专门的搜索方法，返回完整响应信息
+  // async searchInboundOrders(params: InboundOrderSearchParams) {
+  //   const searchParams: InboundOrderSearchParams = {
+  //     page: 1,
+  //     page_size: 100,
+  //     start_date: '',
+  //     end_date: '',
+  //     supplier: '',
+  //     ...params
+  //   };
 
-    return this.request<{ 
-      page: number; 
-      page_size: number; 
-      orders: any[]; 
-      total: number 
-    }>('/inbound/orders/search', {
-      method: 'POST',
-      body: JSON.stringify(searchParams),
-    });
-  }
+  //   return this.request<{ 
+  //     page: number; 
+  //     page_size: number; 
+  //     orders: any[]; 
+  //     total: number 
+  //   }>('/inbound/orders/search', {
+  //     method: 'POST',
+  //     body: JSON.stringify(searchParams),
+  //   });
+  // }
 
   async createInboundOrder(order: any) {
     return this.request<any>('/inbound/orders', {

@@ -8,6 +8,7 @@ import Modal from '../components/ui/Modal';
 import { Table, TableHeader, TableBody, TableRow, TableCell, TableHeaderCell } from '../components/ui/Table';
 import PrintableInboundOrder from '../components/ui/PrintableInboundOrder';
 import DecimalInput from '../components/ui/DecimalInput';
+import Pagination from '../components/ui/Pagination';
 
 const InboundFixed = () => {
     const [orders, setOrders] = useState<InboundOrder[]>([]);
@@ -17,6 +18,14 @@ const InboundFixed = () => {
     const [apiError, setApiError] = useState<boolean>(false);  // API连接错误状态
     const [showModal, setShowModal] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+
+    // 分页相关状态
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        pageSize: 20,
+        total: 0,
+        totalPages: 0
+    });
 
     // 详情相关状态
     const [showDetailModal, setShowDetailModal] = useState(false);
@@ -32,7 +41,7 @@ const InboundFixed = () => {
     // 搜索相关状态
     const [searchParams, setSearchParams] = useState<InboundOrderSearchParams>({
         page: 1,
-        page_size: 100,
+        page_size: 20,
         start_date: '',
         end_date: '',
         supplier: ''
@@ -51,16 +60,33 @@ const InboundFixed = () => {
             setApiError(false);
             setLoading(true);
 
+            const currentSearchParams = searchOptions || searchParams;
+
             const [ordersResult, categoriesResult] = await Promise.allSettled([
-                apiService.getInboundOrders(searchOptions || searchParams),
+                apiService.getInboundOrders(currentSearchParams),
                 apiService.getCategories()
             ]);
 
             // 处理订单数据
             if (ordersResult.status === 'fulfilled') {
-                setOrders(ordersResult.value || []);
+                const result = ordersResult.value;
+                setOrders(result.orders || []);
+                
+                // 更新分页信息
+                setPagination({
+                    currentPage: result.page || 1,
+                    pageSize: result.page_size || 20,
+                    total: result.total || 0,
+                    totalPages: Math.ceil((result.total || 0) / (result.page_size || 20))
+                });
             } else {
                 setOrders([]);
+                setPagination({
+                    currentPage: 1,
+                    pageSize: 20,
+                    total: 0,
+                    totalPages: 0
+                });
                 // 检查是否是网络错误
                 if (ordersResult.reason?.message?.includes('Network error') ||
                     ordersResult.reason?.status === 502) {
@@ -88,6 +114,12 @@ const InboundFixed = () => {
             setApiError(true);
             setOrders([]);
             setCategories([]);
+            setPagination({
+                currentPage: 1,
+                pageSize: 20,
+                total: 0,
+                totalPages: 0
+            });
         } finally {
             setLoading(false);
         }
@@ -108,7 +140,7 @@ const InboundFixed = () => {
     const handleResetSearch = async () => {
         const resetParams = {
             page: 1,
-            page_size: 100,
+            page_size: 20,
             start_date: '',
             end_date: '',
             supplier: ''
@@ -116,6 +148,13 @@ const InboundFixed = () => {
         setSearchParams(resetParams);
         await loadData(resetParams);
         setShowSearchForm(false);
+    };
+
+    // 分页处理函数
+    const handlePageChange = async (page: number) => {
+        const newSearchParams = { ...searchParams, page };
+        setSearchParams(newSearchParams);
+        await loadData(newSearchParams);
     };
 
     // 打印功能
@@ -369,7 +408,7 @@ const InboundFixed = () => {
             )}
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-                {orders.length === 0 ? (
+                {orders.length === 0 && pagination.total === 0 ? (
                     <div className="text-center py-16">
                         <TrendingUp className="h-16 w-16 text-gray-300 mx-auto mb-6" />
                         <h3 className="text-lg font-medium text-gray-900 mb-2">暂无入库订单</h3>
@@ -384,73 +423,88 @@ const InboundFixed = () => {
                         </Button>
                     </div>
                 ) : (
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHeaderCell>订单号</TableHeaderCell>
-                                <TableHeaderCell>供应商</TableHeaderCell>
-                                <TableHeaderCell>总金额</TableHeaderCell>
-                                <TableHeaderCell>状态</TableHeaderCell>
-                                <TableHeaderCell>创建时间</TableHeaderCell>
-                                <TableHeaderCell>操作</TableHeaderCell>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {orders.map((order) => (
-                                <TableRow key={order.id}>
-                                    <TableCell>
-                                        <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
-                                            {order.order_no}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell>
-                                        <span className="font-medium">{order.supplier_name}</span>
-                                    </TableCell>
-                                    <TableCell>
-                                        <span className="font-medium text-green-600">
-                                            ¥{order.total_amount.toFixed(2)}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell>
-                                        <span className={`px-3 py-1 text-xs font-medium rounded-full ${order.status === 'completed'
-                                            ? 'bg-green-100 text-green-800'
-                                            : 'bg-yellow-100 text-yellow-800'
-                                            }`}>
-                                            {order.status === 'completed' ? '已完成' : '处理中'}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell>
-                                        <span className="text-gray-600">
-                                            {new Date(order.created_at).toLocaleDateString('zh-CN')}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center space-x-2">
-                                            <button
-                                                onClick={() => handleViewOrder(order.id)}
-                                                className="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50 transition-colors duration-200"
-                                                title="查看详情"
-                                            >
-                                                <Eye className="h-4 w-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteOrder(order.id, order.order_no)}
-                                                disabled={deletingOrderId === order.id}
-                                                className="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                                                title="删除订单"
-                                            >
-                                                {deletingOrderId === order.id ? (
-                                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
-                                                ) : (
-                                                    <Trash2 className="h-4 w-4" />
-                                                )}
-                                            </button>
-                                        </div>
-                                    </TableCell>
+                    <>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHeaderCell>订单号</TableHeaderCell>
+                                    <TableHeaderCell>供应商</TableHeaderCell>
+                                    <TableHeaderCell>总金额</TableHeaderCell>
+                                    <TableHeaderCell>状态</TableHeaderCell>
+                                    <TableHeaderCell>创建时间</TableHeaderCell>
+                                    <TableHeaderCell>操作</TableHeaderCell>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {orders.map((order) => (
+                                    <TableRow key={order.id}>
+                                        <TableCell>
+                                            <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
+                                                {order.order_no}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell>
+                                            <span className="font-medium">{order.supplier_name}</span>
+                                        </TableCell>
+                                        <TableCell>
+                                            <span className="font-medium text-green-600">
+                                                ¥{order.total_amount.toFixed(2)}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell>
+                                            <span className={`px-3 py-1 text-xs font-medium rounded-full ${order.status === 'completed'
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-yellow-100 text-yellow-800'
+                                                }`}>
+                                                {order.status === 'completed' ? '已完成' : '处理中'}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell>
+                                            <span className="text-gray-600">
+                                                {new Date(order.created_at).toLocaleDateString('zh-CN')}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center space-x-2">
+                                                <button
+                                                    onClick={() => handleViewOrder(order.id)}
+                                                    className="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50 transition-colors duration-200"
+                                                    title="查看详情"
+                                                >
+                                                    <Eye className="h-4 w-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteOrder(order.id, order.order_no)}
+                                                    disabled={deletingOrderId === order.id}
+                                                    className="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    title="删除订单"
+                                                >
+                                                    {deletingOrderId === order.id ? (
+                                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                                                    ) : (
+                                                        <Trash2 className="h-4 w-4" />
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+
+                        {/* 分页组件 */}
+                        {pagination.totalPages > 1 && (
+                            <div className="px-6 py-4 border-t border-gray-200">
+                                <Pagination
+                                    currentPage={pagination.currentPage}
+                                    totalPages={pagination.totalPages}
+                                    totalItems={pagination.total}
+                                    pageSize={pagination.pageSize}
+                                    onPageChange={handlePageChange}
+                                />
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 

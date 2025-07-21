@@ -83,3 +83,10 @@ export interface ApiResponse<T = any> {
   msg: string;
   data: T;
 }
+
+export interface PaginatedInboundOrdersResponse {
+  page: number;
+  page_size: number;
+  orders: InboundOrder[];
+  total: number;
+}
