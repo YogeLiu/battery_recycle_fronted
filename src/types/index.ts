@@ -53,6 +53,36 @@ export interface InboundOrder {
   updated_at: string;
 }
 
+export interface CreateOutboundOrderItem {
+  category_id: number;
+  weight: number;
+  unit_price: number;
+}
+
+export interface CreateOutboundOrderRequest {
+  car_number: string;
+  delivery_address: string;
+  driver_name: string;
+  driver_phone: string;
+  items: CreateOutboundOrderItem[];
+  notes?: string;
+}
+
+export interface OutboundOrder {
+  id: number;
+  order_no: string;
+  car_number: string;
+  delivery_address: string;
+  driver_name: string;
+  driver_phone: string;
+  total_amount: number;
+  status: string;
+  notes?: string;
+  created_by: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Inventory {
   id: number;
   category_id: number;
@@ -78,6 +108,19 @@ export interface InboundOrderDetailResponse {
   detail: InboundOrderDetail[];
 }
 
+export interface OutboundOrderDetail {
+  category_id: number;
+  category_name: string;
+  weight: number;
+  unit_price: number;
+  sub_total: number;
+}
+
+export interface OutboundOrderDetailResponse {
+  order: OutboundOrder;
+  detail: OutboundOrderDetail[];
+}
+
 export interface ApiResponse<T = any> {
   code: number;
   msg: string;
@@ -88,5 +131,12 @@ export interface PaginatedInboundOrdersResponse {
   page: number;
   page_size: number;
   orders: InboundOrder[];
+  total: number;
+}
+
+export interface PaginatedOutboundOrdersResponse {
+  page: number;
+  page_size: number;
+  orders: OutboundOrder[];
   total: number;
 }

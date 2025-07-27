@@ -61,6 +61,7 @@ const InboundFixed = () => {
             setLoading(true);
 
             const currentSearchParams = searchOptions || searchParams;
+            
 
             const [ordersResult, categoriesResult] = await Promise.allSettled([
                 apiService.getInboundOrders(currentSearchParams),
@@ -70,16 +71,19 @@ const InboundFixed = () => {
             // 处理订单数据
             if (ordersResult.status === 'fulfilled') {
                 const result = ordersResult.value;
-                setOrders(result.orders || []);
-                
+                    setOrders(result.orders || []);
+
                 // 更新分页信息
-                setPagination({
+                const newPagination = {
                     currentPage: result.page || 1,
                     pageSize: result.page_size || 20,
                     total: result.total || 0,
                     totalPages: Math.ceil((result.total || 0) / (result.page_size || 20))
-                });
+                };
+                
+                setPagination(newPagination);
             } else {
+                console.error('Orders load failed:', ordersResult.reason);
                 setOrders([]);
                 setPagination({
                     currentPage: 1,
@@ -152,8 +156,16 @@ const InboundFixed = () => {
 
     // 分页处理函数
     const handlePageChange = async (page: number) => {
+        // 更新分页参数
         const newSearchParams = { ...searchParams, page };
+        // 更新搜索参数
         setSearchParams(newSearchParams);
+        // 更新分页状态
+        setPagination({
+            ...pagination,
+            currentPage: page
+        });
+        // 加载数据
         await loadData(newSearchParams);
     };
 
