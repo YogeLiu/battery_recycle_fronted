@@ -1,4 +1,4 @@
-import { InboundOrderDetailResponse, PaginatedInboundOrdersResponse } from '../types';
+import { InboundOrderDetailResponse, PaginatedInboundOrdersResponse, OutboundOrderDetailResponse, PaginatedOutboundOrdersResponse } from '../types';
 import { envConfig } from '../config/env';
 
 const API_BASE_URL = envConfig.apiBaseUrl;
@@ -10,6 +10,14 @@ interface InboundOrderSearchParams {
   page_size?: number;
   start_date?: string;
   supplier?: string;
+}
+
+interface OutboundOrderSearchParams {
+  end_date?: string;
+  page?: number;
+  page_size?: number;
+  start_date?: string;
+  customer?: string;
 }
 
 class ApiError extends Error {
@@ -31,6 +39,16 @@ class ApiService {
     }
 
     return headers;
+  }
+
+  private buildQueryString(params: Record<string, any>): string {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && value !== null && value !== '') {
+        query.append(key, String(value));
+      }
+    }
+    return query.toString();
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -138,7 +156,7 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify(searchParams),
     });
-    
+
     // 返回完整的分页信息
     return response;
   }
@@ -182,6 +200,48 @@ class ApiService {
     });
   }
 
+  // Outbound Orders
+  async getOutboundOrders(params?: OutboundOrderSearchParams) {
+    // 设置默认参数
+    const searchParams: OutboundOrderSearchParams = {
+      page: 1,
+      page_size: 20, // 默认每页20条
+      start_date: '',
+      end_date: '',
+      customer: '',
+      ...params
+    };
+
+    const queryString = this.buildQueryString(searchParams);
+    const endpoint = `/outbound/orders${queryString ? `?${queryString}` : ''}`;
+
+    return this.request<PaginatedOutboundOrdersResponse>(endpoint);
+  }
+
+  async createOutboundOrder(order: any) {
+    return this.request<any>('/outbound/orders', {
+      method: 'POST',
+      body: JSON.stringify(order),
+    });
+  }
+
+  async getOutboundOrder(id: number) {
+    return this.request<OutboundOrderDetailResponse>(`/outbound/orders/${id}`);
+  }
+
+  async deleteOutboundOrder(id: number) {
+    return this.request<any>(`/outbound/orders/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async updateOutboundOrder(id: number, order: any) {
+    return this.request<any>(`/outbound/orders/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(order),
+    });
+  }
+
   // Inventory
   async getInventory() {
     return this.request<any[]>('/inventory');
@@ -194,4 +254,4 @@ class ApiService {
 
 export const apiService = new ApiService();
 export { ApiError };
-export type { InboundOrderSearchParams };
+export type { InboundOrderSearchParams, OutboundOrderSearchParams };

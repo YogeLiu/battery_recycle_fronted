@@ -4,6 +4,7 @@ import {
   LayoutDashboard, 
   Package2, 
   TrendingUp, 
+  TrendingDown,
   Package, 
   Users, 
   LogOut,
@@ -18,6 +19,7 @@ const Sidebar = () => {
     { name: '控制台', href: '/', icon: LayoutDashboard },
     { name: '电池分类', href: '/categories', icon: Battery },
     { name: '入库管理', href: '/inbound', icon: TrendingUp },
+    { name: '出库管理', href: '/outbound', icon: TrendingDown },
     { name: '库存管理', href: '/inventory', icon: Package },
   ];
 

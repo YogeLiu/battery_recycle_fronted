@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Package, AlertTriangle, TrendingUp, TrendingDown } from 'lucide-react';
+import { Package, AlertTriangle, TrendingUp, TrendingDown, Edit3, Save, X } from 'lucide-react';
 import { apiService } from '../services/api';
 import { Inventory, BatteryCategory } from '../types';
 import { Table, TableHeader, TableBody, TableRow, TableCell, TableHeaderCell } from '../components/ui/Table';
+import Button from '../components/ui/Button';
 
 const InventoryPage = () => {
   const [inventory, setInventory] = useState<Inventory[]>([]);
   const [categories, setCategories] = useState<BatteryCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
+  const [editedPrice, setEditedPrice] = useState<number>(0);
 
   useEffect(() => {
     loadData();
@@ -45,6 +48,45 @@ const InventoryPage = () => {
 
   const getLowStockItems = () => {
     return inventory.filter(item => item.current_weight_kg < 10); // 假设低于10KG为低库存
+  };
+
+  const startEditing = (categoryId: number, currentPrice: number) => {
+    setEditingCategoryId(categoryId);
+    setEditedPrice(currentPrice);
+  };
+
+  const cancelEditing = () => {
+    setEditingCategoryId(null);
+    setEditedPrice(0);
+  };
+
+  const savePrice = async (categoryId: number) => {
+    try {
+      const category = getCategoryInfo(categoryId);
+      if (!category) return;
+
+      const updatedCategory = {
+        ...category,
+        unit_price: editedPrice
+      };
+
+      await apiService.updateCategory(categoryId, updatedCategory);
+      
+      // 更新本地状态
+      const updatedCategories = categories.map(cat => 
+        cat.id === categoryId ? { ...cat, unit_price: editedPrice } : cat
+      );
+      setCategories(updatedCategories);
+      
+      // 重置编辑状态
+      setEditingCategoryId(null);
+      setEditedPrice(0);
+      
+      alert('价格更新成功！');
+    } catch (error) {
+      console.error('Failed to update price:', error);
+      alert('价格更新失败，请重试');
+    }
   };
 
   if (loading) {
@@ -161,7 +203,44 @@ const InventoryPage = () => {
                       </span>
                     </TableCell>
                     <TableCell>
-                      ¥{category ? category.unit_price.toFixed(2) : '0.00'}
+                      {editingCategoryId === item.category_id ? (
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={editedPrice}
+                            onChange={(e) => setEditedPrice(parseFloat(e.target.value) || 0)}
+                            className="w-24 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={cancelEditing}
+                            className="p-1"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() => savePrice(item.category_id)}
+                            className="p-1"
+                          >
+                            <Save className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center">
+                          <span>¥{category ? category.unit_price.toFixed(2) : '0.00'}</span>
+                          <button
+                            onClick={() => category && startEditing(item.category_id, category.unit_price)}
+                            className="ml-2 p-1 text-gray-500 hover:text-blue-600"
+                          >
+                            <Edit3 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell>
                       <span className="font-medium">¥{stockValue.toFixed(2)}</span>

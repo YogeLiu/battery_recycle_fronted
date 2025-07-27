@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout/Layout';
@@ -8,6 +7,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Categories from './pages/Categories';
 import InboundFixed from './pages/InboundFixed';
+import Outbound from './pages/Outbound';
 import Inventory from './pages/Inventory';
 import Users from './pages/Users';
 
@@ -46,6 +46,11 @@ const AppRoutes = () => {
         <Route path="inbound" element={
           <ErrorBoundary>
             <InboundFixed />
+          </ErrorBoundary>
+        } />
+        <Route path="outbound" element={
+          <ErrorBoundary>
+            <Outbound />
           </ErrorBoundary>
         } />
         <Route path="inventory" element={<Inventory />} />

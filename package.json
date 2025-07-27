@@ -4,15 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --mode local",
-    "dev:test": "vite --mode test",
-    "dev:local": "vite --mode local",
-    "build": "vite build --mode production",
-    "build:test": "vite build --mode test",
-    "build:local": "vite build --mode local",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "preview:test": "vite preview --mode test"
+    "dev": "vite",
+    "local": "vite",
+    "build": "tsc && vite build",
+    "build:local": "vite build --mode development",
+    "preview": "vite preview"
   },
   "dependencies": {
     "lucide-react": "^0.344.0",

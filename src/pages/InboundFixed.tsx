@@ -71,7 +71,7 @@ const InboundFixed = () => {
             if (ordersResult.status === 'fulfilled') {
                 const result = ordersResult.value;
                 setOrders(result.orders || []);
-                
+
                 // 更新分页信息
                 setPagination({
                     currentPage: result.page || 1,
