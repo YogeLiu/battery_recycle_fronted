@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Eye, TrendingDown, AlertTriangle, Trash2, Search, RefreshCcw, Printer, Edit3, Save, X } from 'lucide-react';
-import { apiService } from '../services/api';
+import { apiService, OutboundOrderSearchParams } from '../services/api';
 import { BatteryCategory, OutboundOrderDetailResponse } from '../types';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
@@ -75,10 +75,10 @@ const Outbound = () => {
                 const data = ordersResult.value;
                 setOrders(data.orders || []);
                 setPagination({
-                    currentPage: data.page,
-                    pageSize: data.page_size,
-                    total: data.total,
-                    totalPages: Math.ceil(data.total / data.page_size)
+                    currentPage: data.page || 1,
+                    pageSize: data.page_size || 20,
+                    total: data.total || 0,
+                    totalPages: Math.ceil((data.total || 0) / (data.page_size || 20))
                 });
             } else {
                 setOrders([]);
@@ -175,10 +175,10 @@ const Outbound = () => {
 
     const savePrice = async (itemId: number) => {
         if (!orderDetail) return;
-        
+
         try {
             setUpdatingOrderId(orderDetail.order.id);
-            
+
             // 构造更新请求数据
             const updateRequest = {
                 car_number: orderDetail.order.car_number,
@@ -197,27 +197,27 @@ const Outbound = () => {
 
             // 调用API更新出库订单
             await apiService.updateOutboundOrder(orderDetail.order.id, updateRequest);
-            
+
             // 更新本地状态
-            const updatedDetail = orderDetail.detail.map(item => 
-                item.category_id === itemId 
-                    ? { ...item, unit_price: editedPrice, sub_total: editedPrice * item.weight } 
+            const updatedDetail = orderDetail.detail.map(item =>
+                item.category_id === itemId
+                    ? { ...item, unit_price: editedPrice, sub_total: editedPrice * item.weight }
                     : item
             );
-            
-            setOrderDetail({ 
-                ...orderDetail, 
+
+            setOrderDetail({
+                ...orderDetail,
                 detail: updatedDetail,
                 order: {
                     ...orderDetail.order,
                     total_amount: updatedDetail.reduce((sum, item) => sum + (item.category_id === itemId ? editedPrice * item.weight : item.sub_total), 0)
                 }
             });
-            
+
             // 重置编辑状态
             setEditingItemId(null);
             setEditedPrice(0);
-            
+
             alert('价格更新成功！');
         } catch (error: any) {
             console.error('Failed to update price:', error);
