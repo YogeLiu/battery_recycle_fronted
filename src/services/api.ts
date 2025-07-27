@@ -157,8 +157,12 @@ class ApiService {
       body: JSON.stringify(searchParams),
     });
 
-    // 返回完整的分页信息
-    return response;
+    // 返回完整的分页信息，包括当前页码
+    return {
+      ...response,
+      page: searchParams.page,
+      page_size: searchParams.page_size
+    };
   }
 
   // // 新增：专门的搜索方法，返回完整响应信息
@@ -215,7 +219,14 @@ class ApiService {
     const queryString = this.buildQueryString(searchParams);
     const endpoint = `/outbound/orders${queryString ? `?${queryString}` : ''}`;
 
-    return this.request<PaginatedOutboundOrdersResponse>(endpoint);
+    const response = await this.request<PaginatedOutboundOrdersResponse>(endpoint);
+
+    // 返回完整的分页信息，包括当前页码
+    return {
+      ...response,
+      page: searchParams.page,
+      page_size: searchParams.page_size
+    };
   }
 
   async createOutboundOrder(order: any) {

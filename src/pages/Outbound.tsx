@@ -58,18 +58,15 @@ const Outbound = () => {
         notes: ''
     });
 
-    const loadData = async (searchOptions?: any) => {
+    const loadData = async (searchOptions?: OutboundOrderSearchParams) => {
         try {
             setError(null);
-            setApiError(false);
+            setApiError(false);  // 重置API错误状态
             setLoading(true);
 
-            // 合并搜索参数
-            const params = { ...searchParams, ...searchOptions };
-
-            // 加载订单和分类数据
+            const currentSearchParams = searchOptions || searchParams;
             const [ordersResult, categoriesResult] = await Promise.allSettled([
-                apiService.getOutboundOrders(params),
+                apiService.getOutboundOrders(currentSearchParams),
                 apiService.getCategories()
             ]);
 
@@ -94,6 +91,9 @@ const Outbound = () => {
                 if (ordersResult.reason?.message?.includes('Network error') ||
                     ordersResult.reason?.status === 502) {
                     setApiError(true);
+                    setError('无法连接到后端服务，请检查后端服务是否正常运行');
+                } else {
+                    setError('无法加载出库订单数据，请检查网络连接');
                 }
             }
 

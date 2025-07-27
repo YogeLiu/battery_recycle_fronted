@@ -25,7 +25,7 @@ const Pagination: React.FC<PaginationProps> = ({
     const getPageNumbers = () => {
         const pages: (number | string)[] = [];
         const maxVisiblePages = 5; // 最多显示5个页码
-        
+
         if (totalPages <= maxVisiblePages) {
             // 如果总页数不超过最大显示数，显示所有页码
             for (let i = 1; i <= totalPages; i++) {
@@ -58,7 +58,7 @@ const Pagination: React.FC<PaginationProps> = ({
                 pages.push(totalPages);
             }
         }
-        
+
         return pages;
     };
 
