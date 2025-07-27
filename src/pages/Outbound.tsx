@@ -77,8 +77,8 @@ const Outbound = () => {
                 setPagination({
                     currentPage: data.page || 1,
                     pageSize: data.page_size || 20,
-                    total: data.total || 0,
-                    totalPages: Math.ceil((data.total || 0) / (data.page_size || 20))
+                    total: data.total,
+                    totalPages: Math.ceil(data.total / (data.page_size || 20))
                 });
             } else {
                 setOrders([]);
