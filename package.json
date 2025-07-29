@@ -8,7 +8,10 @@
     "local": "vite",
     "build": "tsc && vite build",
     "build:local": "vite build --mode development",
-    "preview": "vite preview"
+    "build:test": "tsc && vite build --mode test",
+    "preview": "vite preview",
+    "deploy:test": "sh deploy-test.sh",
+    "deploy:prod-to-test": "sh deploy-prod-to-test.sh"
   },
   "dependencies": {
     "lucide-react": "^0.344.0",

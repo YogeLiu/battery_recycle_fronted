@@ -6,7 +6,7 @@ SERVER_USER="root"
 NGINX_CONF_PATH="/etc/nginx/conf.d/default.conf"
 PROJECT_DIR="/battery"
 
-echo "🚀 开始部署电池回收系统到测试环境..."
+echo "🚀 开始部署电池回收系统生产环境版本到测试环境..."
 
 # 检查nginx配置文件是否存在
 if [ ! -f "nginx-battery.conf" ]; then
@@ -14,9 +14,9 @@ if [ ! -f "nginx-battery.conf" ]; then
     exit 1
 fi
 
-# 构建测试环境版本
-echo "📦 构建测试环境版本..."
-npm run build:test
+# 构建生产环境版本
+echo "📦 构建生产环境版本..."
+npm run build
 
 if [ $? -ne 0 ]; then
     echo "❌ 构建失败！"
@@ -105,7 +105,7 @@ else
 fi
 
 echo ""
-echo "🎉 部署完成！"
+echo "🎉 生产环境部署到测试服务器完成！"
 echo "📖 前端地址: http://$SERVER_IP:8080/battery/"
 echo "🔗 API地址: http://$SERVER_IP:8080/battery/api/"
 echo "📋 日志查看: ssh $SERVER_USER@$SERVER_IP 'tail -f /var/log/nginx/error.log'"
