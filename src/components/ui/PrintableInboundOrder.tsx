@@ -7,18 +7,63 @@ interface PrintableInboundOrderProps {
 
 const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderProps>(
   ({ orderDetail }, ref) => {
+    // 数字转中文大写金额
+    const convertToChineseAmount = (amount: number): string => {
+      const digits = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
+      const units = ['', '拾', '佰', '仟', '万', '拾', '佰', '仟', '亿'];
+      const fraction = ['角', '分'];
+      
+      if (amount === 0) return '零元整';
+      
+      let integerPart = Math.floor(amount);
+      let decimalPart = Math.round((amount - integerPart) * 100);
+      
+      let result = '';
+      let intStr = integerPart.toString();
+      
+      // 处理整数部分
+      for (let i = 0; i < intStr.length; i++) {
+        const digit = parseInt(intStr[i]);
+        const unitIndex = intStr.length - i - 1;
+        
+        if (digit !== 0) {
+          result += digits[digit] + units[unitIndex];
+        } else if (result && !result.endsWith('零')) {
+          result += '零';
+        }
+      }
+      
+      result = result.replace(/零+$/g, '') + '元';
+      
+      // 处理小数部分
+      if (decimalPart > 0) {
+        const jiao = Math.floor(decimalPart / 10);
+        const fen = decimalPart % 10;
+        
+        if (jiao > 0) result += digits[jiao] + '角';
+        if (fen > 0) result += digits[fen] + '分';
+      } else {
+        result += '整';
+      }
+      
+      return result;
+    };
+
+    // 计算总重量
+    const totalWeight = orderDetail.detail.reduce((sum, item) => sum + item.net_weight, 0);
+
     return (
       <div ref={ref} className="print-container">
         <div className="copy-section">
           <div className="print-header">
-            <h1 className="print-title">张家口悦翰新能源有限公司入库单</h1>
+            <h1 className="print-title">张家口悦翰新能源科技有限公司入库单</h1>
             <div className="order-info-grid">
               <div className="info-item">
                 <span className="label">订单号：</span>
                 <span className="value order-no">{orderDetail.order.order_no}</span>
               </div>
               <div className="info-item">
-                <span className="label">供应商：</span>
+                <span className="label">客户：</span>
                 <span className="value">{orderDetail.order.supplier_name}</span>
               </div>
               <div className="info-item">
@@ -55,8 +100,10 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             </tbody>
             <tfoot>
               <tr className="total-row">
-                <td colSpan={6} className="total-label">合计金额：</td>
-                <td className="total-amount">¥{orderDetail.order.total_amount.toFixed(2)}</td>
+                <td className="total-header">合计</td>
+                <td colSpan={3} className="total-label">{convertToChineseAmount(orderDetail.order.total_amount)}</td>
+                <td className="total-weight">{totalWeight.toFixed(2)}KG</td>
+                <td colSpan={2} className="total-amount">¥{orderDetail.order.total_amount.toFixed(2)}</td>
               </tr>
             </tfoot>
           </table>
@@ -68,26 +115,6 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             </div>
           )}
 
-          <div className="signature-section">
-            <div className="signature-row">
-              <div className="signature-item">
-                <span>审核人：</span>
-                <span className="signature-line"></span>
-              </div>
-              <div className="signature-item">
-                <span>收货人：</span>
-                <span className="signature-line"></span>
-              </div>
-              <div className="signature-item">
-                <span>客户：</span>
-                <span className="signature-line"></span>
-              </div>
-              <div className="signature-item">
-                <span>制单：</span>
-                <span className="signature-line"></span>
-              </div>
-            </div>
-          </div>
         </div>
 
         <style dangerouslySetInnerHTML={{
@@ -119,7 +146,7 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
 
             .value { flex: 1; }
 
-            .order-no { font-family: monospace; font-weight: bold; font-size: 12px; }
+            .order-no { font-family: monospace; font-weight: bold; font-size: 12px; overflow: visible; word-break: break-all; min-width: max-content; }
 
             .print-table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 12px; }
 
@@ -133,8 +160,10 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             .sub-total { font-weight: bold; }
             .total-row { font-weight: bold; }
             .total-row td { padding: 1px 2px; line-height: 1.1; }
-            .total-label { text-align: right; font-size: 11px; font-weight: bold; }
-            .total-amount { font-size: 12px; color: #000; font-weight: bold; }
+            .total-header { text-align: center; font-size: 12px; font-weight: bold; }
+            .total-label { text-align: left; font-size: 11px; font-weight: bold; }
+            .total-weight { font-weight: bold; color: #000; font-size: 12px; }
+            .total-amount { font-size: 12px; color: #000; font-weight: bold; text-align: center; }
 
             .notes-section { margin: 6px 0; border: 1px solid #000; padding: 6px; min-height: 14px; font-size: 11px; }
 
