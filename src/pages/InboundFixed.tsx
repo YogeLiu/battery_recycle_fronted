@@ -177,16 +177,8 @@ const InboundFixed = () => {
             console.log('打印完成');
         },
         pageStyle: `
-            @page {
-                size: 148mm 210mm;
-                margin: 8mm;
-            }
-            @media print {
-                body {
-                    -webkit-print-color-adjust: exact !important;
-                    color-adjust: exact !important;
-                }
-            }
+            @page { margin: 0; }
+            @media print { body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
         `
     });
 

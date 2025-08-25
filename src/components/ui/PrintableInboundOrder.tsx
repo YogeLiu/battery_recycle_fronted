@@ -9,7 +9,7 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
   ({ orderDetail }, ref) => {
     return (
       <div ref={ref} className="print-container">
-        <div className="single-page">
+        <div className="copy-section">
           <div className="print-header">
             <h1 className="print-title">张家口悦翰新能源有限公司入库单</h1>
             <div className="order-info-grid">
@@ -20,6 +20,10 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               <div className="info-item">
                 <span className="label">供应商：</span>
                 <span className="value">{orderDetail.order.supplier_name}</span>
+              </div>
+              <div className="info-item">
+                <span className="label">创建时间：</span>
+                <span className="value date-text">{new Date(orderDetail.order.created_at).toLocaleDateString('zh-CN')}</span>
               </div>
             </div>
           </div>
@@ -79,58 +83,28 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
                 <span className="signature-line"></span>
               </div>
               <div className="signature-item">
-                <span>创建时间：</span>
-                <span className="date-text">{new Date(orderDetail.order.created_at).toLocaleDateString('zh-CN')}</span>
+                <span>制单：</span>
+                <span className="signature-line"></span>
               </div>
             </div>
-
           </div>
         </div>
 
         <style dangerouslySetInnerHTML={{
           __html: `
-            .print-container {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;              font-family: Arial, 'Microsoft YaHei', sans-serif;
-              font-size: 12px;
-              line-height: 1.3;
-              color: #000;
-            }
+            .print-container { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; font-family: Arial, 'Microsoft YaHei', sans-serif; font-size: 14px; line-height: 1.35; color: #000; }
 
-            .single-page {
-              width: 100% !important;
-              min-height: 80mm !important;
-              max-height: 100% !important;
-              padding: 2mm 1cm 2mm 2.5cm;
-              margin: 0 auto;
-              background: white;
-              box-sizing: border-box;
-              display: flex;
-              flex-direction: column;
-            }
+            .copy-section { width: 100% !important; padding: 4mm 10mm 4mm 20mm; margin: 0 auto; background: white; box-sizing: border-box; display: flex; flex-direction: column; break-inside: avoid; page-break-inside: avoid; }
 
-            .print-header {
-              text-align: center;
-              margin-bottom: 6px;
-              border-bottom: 2px solid #000;
-              padding-bottom: 4px;
-            }
+            /* no separator needed for physical 3-part paper */
 
-            .print-title {
-              font-size: 16px;
-              font-weight: bold;
-              margin: 0 0 4px 0;
-              letter-spacing: 1px;
-            }
+            .print-header { text-align: center; margin-bottom: 8px; border-bottom: 2px solid #000; padding-bottom: 6px; }
 
-            .order-info-grid {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              text-align: left;
-              font-size: 9px;
-              width: 100%;
-            }
+            .print-title { font-size: 20px; font-weight: bold; margin: 0 0 6px 0; letter-spacing: 1px; }
+
+            .order-info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; text-align: left; font-size: 11px; width: 100%; gap: 10px; }
+
+            /* removed copy label */
 
             .info-item {
               display: flex;
@@ -143,98 +117,29 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               min-width: 50px;
             }
 
-            .value {
-              flex: 1;
-            }
+            .value { flex: 1; }
 
-            .order-no {
-              font-family: monospace;
-              font-weight: bold;
-              font-size: 10px;
-            }
+            .order-no { font-family: monospace; font-weight: bold; font-size: 12px; }
 
-            .total-highlight {
-              font-weight: bold;
-              font-size: 18px;
-              color: #e74c3c;
-            }
+            .print-table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 12px; }
 
-            .print-table {
-              width: 100%;
-              border-collapse: collapse;
-              margin: 4px 0;
-              font-size: 10px;
-            }
+            .print-table th, .print-table td { border: 1px solid #000; padding: 4px 3px; text-align: center; vertical-align: middle; }
 
-            .print-table th,
-            .print-table td {
-              border: 1px solid #000;
-              padding: 3px 2px;
-              text-align: center;
-              vertical-align: middle;
-            }
+            .print-table th { font-weight: bold; font-size: 11px; padding: 2px 3px; line-height: 1.15; }
 
-            .print-table th {
-              background-color: #f8f8f8;
-              font-weight: bold;
-              font-size: 8px;
-              padding: 1px 2px;
-              line-height: 1.1;
-            }
+            .print-table tbody tr { page-break-inside: avoid; }
 
-            .print-table tbody tr {
-              page-break-inside: avoid;
-            }
+            .net-weight { font-weight: bold; color: #000; }
+            .sub-total { font-weight: bold; }
+            .total-row { font-weight: bold; }
+            .total-row td { padding: 1px 2px; line-height: 1.1; }
+            .total-label { text-align: right; font-size: 11px; font-weight: bold; }
+            .total-amount { font-size: 12px; color: #000; font-weight: bold; }
 
-            .net-weight {
-              font-weight: bold;
-              color: #000;
-            }
+            .notes-section { margin: 6px 0; border: 1px solid #000; padding: 6px; min-height: 14px; font-size: 11px; }
 
-            .sub-total {
-              font-weight: bold;
-            }
-
-            .total-row {
-              font-weight: bold;
-              background-color: #f0f0f0;
-            }
-
-            .total-row td {
-              padding: 1px 2px;
-              line-height: 1.1;
-            }
-
-            .total-label {
-              text-align: right;
-              font-size: 8px;
-              font-weight: bold;
-            }
-
-            .total-amount {
-              font-size: 9px;
-              color: #000;
-              font-weight: bold;
-            }
-
-
-
-            .notes-section {
-              margin: 3px 0;
-              border: 1px solid #000;
-              padding: 3px;
-              min-height: 12px;
-              font-size: 9px;
-            }
-
-            .notes-label {
-              font-weight: bold;
-              margin-bottom: 4px;
-            }
-
-            .notes-content {
-              line-height: 1.4;
-            }
+            .notes-label { font-weight: bold; margin-bottom: 4px; }
+            .notes-content { line-height: 1.4; }
 
             .signature-section {
               margin-top: auto;
@@ -242,125 +147,35 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               page-break-inside: avoid;
             }
 
-            .signature-row {
-              display: grid;
-              grid-template-columns: 1fr 1fr 1fr 1fr;
-              gap: 6px;
-              margin-bottom: 4px;
-              font-size: 7px;
-            }
+            .signature-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-top: 8px; font-size: 10px; }
 
-            .signature-item {
-              display: flex;
-              align-items: center;
-              gap: 4px;
-            }
-
-            .signature-line {
-              display: inline-block;
-              width: 35px;
-              border-bottom: 1px solid #000;
-              height: 12px;
-            }
-
-            .date-text {
-              font-size: 7px;
-              color: #000;
-            }
+            .signature-item { display: flex; align-items: center; gap: 4px; }
+            .signature-line { display: inline-block; width: 60px; border-bottom: 1px solid #000; height: 14px; }
+            .date-text { font-size: 10px; color: #000; }
 
             @media print {
-              @page {
-                
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                margin: 0 1cm 0 2.5cm;
-                
-              }
-              
-              .print-container {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                font-size: 12px !important;
-              }
-              
-              .single-page {
-                width: 100% !important;
-                min-height: 80mm !important;
-                max-height: 100% !important;
-                padding: 2mm 1cm 2mm 2.5cm;
-                margin: 0;
-                page-break-inside: avoid;
-                display: flex;
-                flex-direction: column;
-              }
-              
-              .print-table {
-                font-size: 10px !important;
-              }
+              @page { -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 6mm 10mm 6mm 20mm; }
 
-              .print-table thead {
-                display: table-header-group;
-              }
+              .print-container { font-size: 14px !important; }
 
-              .print-table tbody tr {
-                page-break-inside: avoid !important;
-              }
+              .copy-section { width: 100% !important; padding: 4mm 10mm 4mm 20mm; margin: 0; page-break-inside: avoid; display: flex; flex-direction: column; }
 
-              .print-table tfoot {
-                display: table-footer-group;
-              }
-              
-              .print-table th {
-                font-size: 8px !important;
-                padding: 1px 2px !important;
-                line-height: 1.1 !important;
-              }
-              
-              .print-table th,
-              .print-table td {
-                padding: 3px 2px !important;
-              }
-              
-              .total-row td {
-                padding: 1px 2px !important;
-                line-height: 1.1 !important;
-              }
-              
-              .print-title {
-                font-size: 16px !important;
-              }
-              
-              .order-info-grid {
-                font-size: 9px !important;
-              }
-              
-              .order-no {
-                font-size: 10px !important;
-              }
-              
-              .signature-row {
-                font-size: 7px !important;
-              }
-
-              .signature-section {
-                page-break-inside: avoid !important;
-              }
-
-              .date-text {
-                font-size: 7px !important;
-              }
-              
-              .notes-section {
-                font-size: 9px !important;
-              }
-              
-              .total-label {
-                font-size: 8px !important;
-              }
-              
-              .total-amount {
-                font-size: 9px !important;
-              }
+              .print-table { font-size: 12px !important; }
+              .print-table thead { display: table-header-group; }
+              .print-table tbody tr { page-break-inside: avoid !important; }
+              .print-table tfoot { display: table-footer-group; }
+              .print-table th { font-size: 11px !important; padding: 2px 3px !important; line-height: 1.15 !important; }
+              .print-table th, .print-table td { padding: 4px 3px !important; }
+              .total-row td { padding: 2px 3px !important; line-height: 1.15 !important; }
+              .print-title { font-size: 20px !important; }
+              .order-info-grid { font-size: 11px !important; }
+              .order-no { font-size: 12px !important; }
+              .signature-row { font-size: 10px !important; }
+              .signature-section { page-break-inside: avoid !important; }
+              .date-text { font-size: 10px !important; }
+              .notes-section { font-size: 11px !important; }
+              .total-label { font-size: 11px !important; }
+              .total-amount { font-size: 12px !important; }
             }
           `
         }} />
