@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Eye, TrendingDown, AlertTriangle, Trash2, Search, RefreshCcw, Printer, Edit3, Save, X } from 'lucide-react';
+import { useReactToPrint } from 'react-to-print';
 import { apiService, OutboundOrderSearchParams } from '../services/api';
 import { BatteryCategory, OutboundOrderDetailResponse } from '../types';
 import Button from '../components/ui/Button';
@@ -7,6 +8,7 @@ import Modal from '../components/ui/Modal';
 import { Table, TableHeader, TableBody, TableRow, TableCell, TableHeaderCell } from '../components/ui/Table';
 import DecimalInput from '../components/ui/DecimalInput';
 import Pagination from '../components/ui/Pagination';
+import PrintableOutboundOrder from '../components/ui/PrintableOutboundOrder';
 
 // 从 '../types' 中导入 BatteryCategory，但不需要再导入 OutboundOrderDetailResponse
 // 因为我们将在页面组件内部定义更具体的类型
@@ -38,6 +40,9 @@ const Outbound = () => {
 
     // 删除相关状态
     const [deletingOrderId, setDeletingOrderId] = useState<number | null>(null);
+
+    // 打印相关状态和引用
+    const printRef = useRef<HTMLDivElement>(null);
 
     // 搜索相关状态
     const [searchParams, setSearchParams] = useState({
@@ -226,6 +231,15 @@ const Outbound = () => {
             setUpdatingOrderId(null);
         }
     };
+
+    // 打印功能
+    const handlePrint = useReactToPrint({
+        contentRef: printRef,
+        documentTitle: `出库单-${orderDetail?.order.order_no || ''}`,
+        onAfterPrint: () => {
+            console.log('打印完成');
+        },
+    });
 
     // 删除订单功能
     const handleDeleteOrder = async (orderId: number, orderNo: string) => {
@@ -988,7 +1002,16 @@ const Outbound = () => {
                             </div>
                         </div>
 
-                        <div className="flex justify-end pt-6 border-t border-gray-200">
+                        <div className="flex justify-between pt-6 border-t border-gray-200">
+                            <Button
+                                type="button"
+                                variant="primary"
+                                onClick={handlePrint}
+                                className="flex items-center"
+                            >
+                                <Printer className="h-4 w-4 mr-2" />
+                                打印出库单
+                            </Button>
                             <Button
                                 type="button"
                                 variant="secondary"
@@ -996,6 +1019,16 @@ const Outbound = () => {
                             >
                                 关闭
                             </Button>
+                        </div>
+
+                        {/* 隐藏的打印组件 */}
+                        <div style={{ display: 'none' }}>
+                            {orderDetail && (
+                                <PrintableOutboundOrder
+                                    ref={printRef}
+                                    orderDetail={orderDetail}
+                                />
+                            )}
                         </div>
                     </div>
                 ) : (

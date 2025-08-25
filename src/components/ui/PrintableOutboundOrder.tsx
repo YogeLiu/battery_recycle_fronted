@@ -1,11 +1,11 @@
 import { forwardRef } from 'react';
-import { InboundOrderDetailResponse } from '../../types';
+import { OutboundOrderDetailResponse } from '../../types';
 
-interface PrintableInboundOrderProps {
-  orderDetail: InboundOrderDetailResponse;
+interface PrintableOutboundOrderProps {
+  orderDetail: OutboundOrderDetailResponse;
 }
 
-const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderProps>(
+const PrintableOutboundOrder = forwardRef<HTMLDivElement, PrintableOutboundOrderProps>(
   ({ orderDetail }, ref) => {
     // 数字转中文大写金额
     const convertToChineseAmount = (amount: number): string => {
@@ -49,29 +49,39 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
     };
 
     // 计算总重量
-    const totalWeight = orderDetail.detail.reduce((sum, item) => sum + item.net_weight, 0);
+    const totalWeight = orderDetail.detail.reduce((sum, item) => sum + item.weight, 0);
 
     return (
       <div ref={ref} className="print-container">
         <div className="copy-section">
           <div className="print-header">
-            <h1 className="print-title">张家口悦翰新能源科技有限公司入库单</h1>
-            <div className="order-info-grid">
-            <div className="info-item">
-                <span className="label">客户：</span>
-                <span className="value">{orderDetail.order.supplier_name}</span>
+            <h1 className="print-title">张家口悦翰新能源科技有限公司出库单</h1>
+            <div className="header-info-grid">
+              <div className="info-item">
+                <span className="label">送货地：</span>
+                <span className="value">{orderDetail.order.delivery_address}</span>
+              </div>
+              <div className="info-item">
+                <span className="label">时间：</span>
+                <span className="value date-text">{new Date(orderDetail.order.created_at).toLocaleDateString('zh-CN')}</span>
               </div>
               <div className="info-item">
                 <span className="label">订单号：</span>
                 <span className="value order-no">{orderDetail.order.order_no}</span>
               </div>
+            </div>
+            <div className="driver-info-grid-three">
               <div className="info-item">
-                <span className="label">创建时间：</span>
-                <span className="value date-text">{new Date(orderDetail.order.created_at).toLocaleDateString('zh-CN')}</span>
+                <span className="label">司机：</span>
+                <span className="value">{orderDetail.order.driver_name}</span>
               </div>
               <div className="info-item">
-                <span className="label">付款时间：</span>
-                <span className="value payment-time">____________</span>
+                <span className="label">车牌号：</span>
+                <span className="value">{orderDetail.order.car_number}</span>
+              </div>
+              <div className="info-item">
+                <span className="label">电话：</span>
+                <span className="value">{orderDetail.order.driver_phone}</span>
               </div>
             </div>
           </div>
@@ -79,13 +89,11 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
           <table className="print-table">
             <thead>
               <tr>
-                <th style={{ width: '7%' }}>序号</th>
-                <th style={{ width: '22%' }}>电池分类</th>
-                <th style={{ width: '12.5%' }}>毛重(KG)</th>
-                <th style={{ width: '15%' }}>皮重(KG)</th>
-                <th style={{ width: '12.5%' }}>净重(KG)</th>
-                <th style={{ width: '18%' }}>单价(元/KG)</th>
-                <th style={{ width: '13%' }}>小计(元)</th>
+                <th style={{ width: '10%' }}>序号</th>
+                <th style={{ width: '40%' }}>电池分类</th>
+                <th style={{ width: '20%' }}>重量(KG)</th>
+                <th style={{ width: '15%' }}>单价(元/KG)</th>
+                <th style={{ width: '15%' }}>金额(元)</th>
               </tr>
             </thead>
             <tbody>
@@ -93,9 +101,7 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
                 <tr key={index}>
                   <td>{index + 1}</td>
                   <td>{item.category_name}</td>
-                  <td>{item.gross_weight.toFixed(2)}</td>
-                  <td>{item.tare_weight.toFixed(2)}</td>
-                  <td className="net-weight">{item.net_weight.toFixed(2)}</td>
+                  <td className="weight">{item.weight.toFixed(2)}</td>
                   <td>¥{item.unit_price.toFixed(2)}</td>
                   <td className="sub-total">¥{item.sub_total.toFixed(2)}</td>
                 </tr>
@@ -104,7 +110,7 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             <tfoot>
               <tr className="total-row">
                 <td className="total-header">合计</td>
-                <td colSpan={3} className="total-label">{convertToChineseAmount(orderDetail.order.total_amount)}</td>
+                <td className="total-label">{convertToChineseAmount(orderDetail.order.total_amount)}</td>
                 <td className="total-weight">{totalWeight.toFixed(2)}KG</td>
                 <td colSpan={2} className="total-amount">¥{orderDetail.order.total_amount.toFixed(2)}</td>
               </tr>
@@ -126,15 +132,15 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
 
             .copy-section { width: 100% !important; padding: 4mm 10mm 4mm 20mm; margin: 0 auto; background: white; box-sizing: border-box; display: flex; flex-direction: column; break-inside: avoid; page-break-inside: avoid; }
 
-            /* no separator needed for physical 3-part paper */
-
             .print-header { text-align: center; margin-bottom: 8px; border-bottom: 2px solid #000; padding-bottom: 6px; }
 
             .print-title { font-size: 20px; font-weight: bold; margin: 0 0 6px 0; letter-spacing: 1px; }
 
-            .order-info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; align-items: center; text-align: left; font-size: 10px; width: 100%; gap: 8px; justify-content: space-between; white-space: nowrap; }
+            .header-info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; text-align: left; font-size: 10px; width: 100%; gap: 8px; justify-content: space-between; white-space: nowrap; margin-bottom: 4px; }
 
-            /* removed copy label */
+            .driver-info-grid { display: grid; grid-template-columns: 1fr 1fr; align-items: center; text-align: left; font-size: 10px; width: 100%; gap: 8px; white-space: nowrap; justify-content: space-between; }
+
+            .driver-info-grid-three { display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; text-align: left; font-size: 10px; width: 100%; gap: 8px; white-space: nowrap; justify-content: space-between; }
 
             .info-item {
               display: flex;
@@ -150,7 +156,7 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
 
             .value { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-            .order-no { font-family: monospace; font-weight: bold; font-size: 12px; overflow: visible; word-break: break-all; min-width: max-content; }
+            .order-no { font-family: monospace; font-size: 12px; overflow: visible; word-break: break-all; min-width: max-content; }
 
             .print-table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 12px; }
 
@@ -160,7 +166,7 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
 
             .print-table tbody tr { page-break-inside: avoid; }
 
-            .net-weight { font-weight: bold; color: #000; }
+            .weight { font-weight: bold; color: #000; }
             .sub-total { font-weight: bold; }
             .total-row { font-weight: bold; }
             .total-row td { padding: 1px 2px; line-height: 1.1; }
@@ -174,16 +180,6 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
             .notes-label { font-weight: bold; margin-bottom: 4px; }
             .notes-content { line-height: 1.4; }
 
-            .signature-section {
-              margin-top: auto;
-              padding-top: 4px;
-              page-break-inside: avoid;
-            }
-
-            .signature-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-top: 8px; font-size: 10px; }
-
-            .signature-item { display: flex; align-items: center; gap: 4px; }
-            .signature-line { display: inline-block; width: 60px; border-bottom: 1px solid #000; height: 14px; }
             .date-text { font-size: 10px; color: #000; }
 
             @media print {
@@ -201,10 +197,10 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
               .print-table th, .print-table td { padding: 4px 3px !important; }
               .total-row td { padding: 2px 3px !important; line-height: 1.15 !important; }
               .print-title { font-size: 20px !important; }
-              .order-info-grid { font-size: 10px !important; grid-template-columns: 1fr 1fr 1fr 1fr !important; gap: 8px !important; }
+              .header-info-grid { font-size: 10px !important; gap: 8px !important; }
+              .driver-info-grid { font-size: 10px !important; gap: 8px !important; }
+              .driver-info-grid-three { font-size: 10px !important; gap: 8px !important; }
               .order-no { font-size: 12px !important; }
-              .signature-row { font-size: 10px !important; }
-              .signature-section { page-break-inside: avoid !important; }
               .date-text { font-size: 10px !important; }
               .notes-section { font-size: 11px !important; }
               .total-label { font-size: 11px !important; }
@@ -217,6 +213,6 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
   }
 );
 
-PrintableInboundOrder.displayName = 'PrintableInboundOrder';
+PrintableOutboundOrder.displayName = 'PrintableOutboundOrder';
 
-export default PrintableInboundOrder;
+export default PrintableOutboundOrder;
