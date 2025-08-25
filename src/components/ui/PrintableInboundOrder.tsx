@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import { forwardRef } from 'react';
 import { InboundOrderDetailResponse } from '../../types';
 
 interface PrintableInboundOrderProps {
@@ -11,15 +11,14 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
     const convertToChineseAmount = (amount: number): string => {
       const digits = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
       const units = ['', '拾', '佰', '仟', '万', '拾', '佰', '仟', '亿'];
-      const fraction = ['角', '分'];
       
       if (amount === 0) return '零元整';
       
-      let integerPart = Math.floor(amount);
-      let decimalPart = Math.round((amount - integerPart) * 100);
+      const integerPart = Math.floor(amount);
+      const decimalPart = Math.round((amount - integerPart) * 100);
       
       let result = '';
-      let intStr = integerPart.toString();
+      const intStr = integerPart.toString();
       
       // 处理整数部分
       for (let i = 0; i < intStr.length; i++) {
@@ -58,13 +57,13 @@ const PrintableInboundOrder = forwardRef<HTMLDivElement, PrintableInboundOrderPr
           <div className="print-header">
             <h1 className="print-title">张家口悦翰新能源科技有限公司入库单</h1>
             <div className="order-info-grid">
+            <div className="info-item">
+                <span className="label">客户：</span>
+                <span className="value">{orderDetail.order.supplier_name}</span>
+              </div>
               <div className="info-item">
                 <span className="label">订单号：</span>
                 <span className="value order-no">{orderDetail.order.order_no}</span>
-              </div>
-              <div className="info-item">
-                <span className="label">客户：</span>
-                <span className="value">{orderDetail.order.supplier_name}</span>
               </div>
               <div className="info-item">
                 <span className="label">创建时间：</span>
